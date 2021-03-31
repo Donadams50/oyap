@@ -3,6 +3,7 @@ const app = express();
 const bodyparser = require('body-parser');
 app.use(bodyparser.json());
 
+
 const cors = require("cors");
 
 app.use(cors()); 
@@ -28,7 +29,14 @@ db.mongoose
     process.exit();
   });
 
-  
+
+
+require('./app/members/members.routes')(app)
+
+
+
+
+
 
  app.get('/',  (req,res)=>{
     res.status(200).send({message:"Welcome to OYAP"})
