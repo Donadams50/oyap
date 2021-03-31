@@ -32,13 +32,12 @@ exports.create = async(req,res)=>{
                     role: req.body.role,
                     lastName: req.body.lastName,
                     phoneNumber:req.body.phoneNumber || '',
-                    password: req.body.password || '',
                     email: req.body.email,
                     forgotPasswordCode: '',
                     isVerified: false,
                     walletBalance: 0.00,
                     verificationCode: codeGenerated,
-                    pickUpDetails: {}, 
+                    pickUpDetails: '', 
                     billingDetails: {},
                     isEnabled: false
                     
@@ -145,7 +144,7 @@ exports.signIn = async(req, res) => {
 console.log(req.body)
 // let {myrefCode} = req.query;
 const {   email, password, role  } = req.body;
-
+ const receivedRole = role
 if ( email && password && role ){
     if ( email==="" || password==="" || role ==="" ){
         res.status(400).send({
@@ -166,30 +165,35 @@ if ( email && password && role ){
              const Auth = await Auths.findOne({email: email} )
                
            if(User){
-            if(User.role === role){
+           // if(User.role === role){
                         const retrievedPassword = Auth.password
+                        const retrievedRole =  User.role
                         const id = User._id;
                         const {  firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance } = User
                         const isMatch = await passwordUtils.comparePassword(password.toLowerCase(), retrievedPassword);
                         console.log(isMatch )
                         if (isMatch){
+                            if(retrievedRole === receivedRole){
+                                
                         const tokens = signToken( id, firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance) 
                     
                         let user = {}
                         
                             user.profile = { id,firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance} 
                             user.token = tokens;                
-                            res.status(200).send(user)                         
+                            res.status(200).send(user)  
+                            
+                          }else{
+                                  res.status(400).json({message:"Incorrect role details"})
+                                }
                     }else{
                         res.status(400).json({message:"Incorrect Login Details"})
                     }
-                }else{
-                    res.status(400).json({message:"Incorrect role details"})
-                }
+                
     
            }else{
             res.status(400).send({message:" User does not exists"})
-      }
+           }
                    
             
         }catch(err){
@@ -443,7 +447,62 @@ exports.disableUser = async (req, res) => {
                 }
                  };
 
+// Update members details
+ 
+exports.updateMember = async(req, res) => {
+    const _id = req.params.id;
+    console.log(req.body)
 
+    const { firstName,role,lastName,email,isEnabled,phoneNumber, isVerified } = req.body;
+  
+    if ( firstName && role  && role && lastName && email && isEnabled && phoneNumber && isVerified){
+          if ( firstName==="" ||  role==="" || lastName==="" || isEnabled===""  || email==="" || phoneNumber===  "" || isVerified === "" ){
+            res.status(400).send({
+                message:"Incorrect entry format"
+            });
+        }else{
+           
+                  
+            const member = new Members({
+                _id : req.params.id,
+                firstName: req.body.firstName,
+                role: req.body.role,
+                lastName: req.body.lastName,
+                phoneNumber:req.body.phoneNumber || '',
+                email: req.body.email,
+                forgotPasswordCode: req.body.forgotPasswordCode || '',
+                isVerified: req.body.isVerified,
+                walletBalance: req.body.walletBalance ,
+                verificationCode: req.body.verificationCode || '',
+                pickUpDetails: req.body.pickUpDetails || '', 
+                billingDetails: req.body.billingDetails || {},
+                isEnabled:  req.body.isEnabled,
+              });
+             
+    
+         
+            try{
+                const updateProfile = await Members.updateOne( {_id}, member)
+                   //  console.log(updateProfile)                       
+                 res.status(201).send({message:"Profile updated  succesfully"})
+                
+                
+            }catch(err){
+                console.log(err)
+                res.status(500).send({message:"Error while updating profile "})
+            }
+          
+          
+   
+          
+        }
+    }else{
+        res.status(400).send({
+            message:"Incorrect entry format"
+        });
+    }
+                   
+};
 
 // Find all members
 exports.findAllMembers = async (req, res) => {
@@ -489,58 +548,7 @@ exports.findMembeById = async (req, res) => {
 
 };
 
-// Update members details
- 
- exports.updateMember = async(req, res) => {
-    const _id = req.params.id;
-    console.log(req.body)
 
-    const {   fullName, password , role, roleId, username, officeTitleBranch} = req.body;
-  
-    if ( fullName && password  && role && roleId&& username&& officeTitleBranch){
-        if ( fullName==="" || password==="" || role==="" || roleId==="" || username==="" || officeTitleBranch===""  ){
-            res.status(400).send({
-                message:"Incorrect entry format"
-            });
-        }else{
-           
-                  
-            const member = new Members({
-                _id : req.params.id,
-                fullName: req.body.fullName,
-                role: req.body.role,
-                roleId: req.body.roleId,
-                username:req.body.username,
-                branch:req.body.branch || '',
-                branchId: req.body.branchId || '',
-                officeTitleBranch:req.body.officeTitleBranch,
-                forgotPasswordCode: req.body.forgotPasswordCode
-              });
-             
-    
-         
-            try{
-                const updateProfile = await Members.updateOne( {_id}, member)
-                   //  console.log(updateProfile)                       
-                 res.status(201).send({message:"Profile updated  succesfully"})
-                
-                
-            }catch(err){
-                console.log(err)
-                res.status(500).send({message:"Error while updating profile "})
-            }
-          
-          
-   
-          
-        }
-    }else{
-        res.status(400).send({
-            message:"Incorrect entry format"
-        });
-    }
-                   
-};
 
 
 // delete a user

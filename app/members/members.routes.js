@@ -1,17 +1,17 @@
 module.exports = app => {
     const member = require("./members.controller");
     const jwtTokenUtils = require('../helpers/jwtTokenUtils')
-    const { verifyToken } = jwtTokenUtils;
+    const { verifyToken , isSeller, isBuyer, isLogistics, isAdmin} = jwtTokenUtils;
     
 
      app.post("/user",  member.create)
      app.post("/authenticate", member.signIn)
      app.post("/verifyuser",    member.verifyUser)
-     app.post("/enableuser",    member.enableUser)
-     app.post("/disableuser",    member.disableUser)
+     app.post("/enableuser", isAdmin ,   member.enableUser)
+     app.post("/disableuser", isAdmin ,   member.disableUser)
      app.post("/forgotpassword",  member.forgotPassword)
      app.post("/reset",    member.resetPassword)
-    // app.put("/member/:id", verifyToken, isAdmin,  member.updateMember)
+     app.put("/member/:id", verifyToken,  member.updateMember)
     // app.delete("/member/:id", verifyToken,  isAdmin,   member.deleteMember)
     // app.get("/members/:id",  verifyToken, isAdmin,  member.findMembeById)
     // app.get("/members/loanofficer/:id",  verifyToken, isAdmin,  member.findLoanOfficer)

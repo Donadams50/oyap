@@ -8,11 +8,10 @@ module.exports = mongoose => {
         phoneNumber:String,
         forgotPasswordCode: String,
         verificationCode: String,
-        password: String,
         isVerified: Boolean,
         isEnabled: Boolean, 
         walletBalance: Number,
-        pickUpDetails: Object,
+        pickUpDetails: String,
         billingDetails: Object
       },
 

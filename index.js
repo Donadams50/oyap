@@ -32,9 +32,7 @@ db.mongoose
 
 
 require('./app/members/members.routes')(app)
-
-
-
+require("./app/products/products.routes.js")(app)
 
 
 
