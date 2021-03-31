@@ -9,8 +9,7 @@ db.url = process.env.url;
 
 
 db.profiles = require("../members/members.model.js")(mongoose);
- db.auths = require("../members/auth.model.js")(mongoose);
+db.auths = require("../members/auth.model.js")(mongoose);
 
 
 module.exports = db;
-

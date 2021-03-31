@@ -144,10 +144,10 @@ exports.signIn = async(req, res) => {
 }
 console.log(req.body)
 // let {myrefCode} = req.query;
-const {   email, password  } = req.body;
+const {   email, password, role  } = req.body;
 
-if ( email && password ){
-    if ( email==="" || password==="" ){
+if ( email && password && role ){
+    if ( email==="" || password==="" || role ==="" ){
         res.status(400).send({
             message:"Incorrect entry format"
         });
@@ -166,23 +166,26 @@ if ( email && password ){
              const Auth = await Auths.findOne({email: email} )
                
            if(User){
-            const retrievedPassword = Auth.password
-            const id = User._id;
-         const {  firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance } = User
-            const isMatch = await passwordUtils.comparePassword(password.toLowerCase(), retrievedPassword);
-            console.log(isMatch )
-             if (isMatch){
-              const tokens = signToken( id, firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance) 
-        
-            let user = {}
-             
-                  user.profile = { id,firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance} 
-                  user.token = tokens;                
-                  res.status(200).send(user)                         
-          }else{
-              res.status(400).json({message:"Incorrect Login Details"})
-          }
-    
+            if(User.role === role){
+                        const retrievedPassword = Auth.password
+                        const id = User._id;
+                        const {  firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance } = User
+                        const isMatch = await passwordUtils.comparePassword(password.toLowerCase(), retrievedPassword);
+                        console.log(isMatch )
+                        if (isMatch){
+                        const tokens = signToken( id, firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance) 
+                    
+                        let user = {}
+                        
+                            user.profile = { id,firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance} 
+                            user.token = tokens;                
+                            res.status(200).send(user)                         
+                    }else{
+                        res.status(400).json({message:"Incorrect Login Details"})
+                    }
+                }else{
+                    res.status(400).json({message:"Incorrect role details"})
+                }
     
            }else{
             res.status(400).send({message:" User does not exists"})
