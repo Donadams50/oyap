@@ -14,9 +14,8 @@ exports.create = async(req, res) => {
           res.status(400).send({
               message:"Incorrect entry format"
           });
-      }else{
-    // console.log(req.file)
-    // console.log( JSON.stringify( req.file.url ) ) 
+      }else{ 
+   
         
           const products = new Products({
               name: req.body.name,
