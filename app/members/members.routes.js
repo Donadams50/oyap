@@ -10,6 +10,7 @@ module.exports = app => {
      app.post("/enableuser", isAdmin ,   member.enableUser)
      app.post("/disableuser", isAdmin ,   member.disableUser)
      app.post("/forgotpassword",  member.forgotPassword)
+     app.post("/forgotpasswordcodestatus",  member.forgotPasswordCodeStatus)
      app.post("/reset",    member.resetPassword)
      app.put("/member/:id", verifyToken,  member.updateMember)
     // app.delete("/member/:id", verifyToken,  isAdmin,   member.deleteMember)

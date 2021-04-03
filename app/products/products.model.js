@@ -8,26 +8,21 @@ module.exports = mongoose => {
         productQuantity: Number,
         productDescription: String,
         productInStock:Boolean,
-        productImages: Array
+        productImages: Array,
+        sellerId: String,
+        sellerphoneNumber: String,
+        sellerName: String,
+        sellerEmail: String,
+        sellerpickUpDetails: String
       },
       { timestamps: true }
     );
   
-    schema.method("toJSON", function() {
-      const { __v, _id, ...object } = this.toObject();
-      object.id = _id;
-      return object;
-    });
-    // Getter
-    schema.path('productQuantity').get(function(num) {
-      return (num / 100).toFixed(2);
-     });
+    
  
- // Setter
-    schema.path('productQuantity').set(function(num) {
-      return num * 100;
-   });
+
    schema.path('productPrice').get(function(num) {
+     console.log(num)
     return (num / 100).toFixed(2);
    });
 
@@ -35,7 +30,11 @@ module.exports = mongoose => {
   schema.path('productPrice').set(function(num) {
     return num * 100;
  });
-  
+  schema.method("toJSON", function() {
+      const { __v, _id, ...object } = this.toObject();
+      object.id = _id;
+      return object;
+    });
     const Product = mongoose.model("product", schema);
     return Product;
   };

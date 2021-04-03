@@ -7,13 +7,10 @@ module.exports = app => {
  
         
  app.post("/product",  verifyToken, isSeller,   product.create)
-//  app.get("/products",  verifyToken,  product.findAllProducts)
-//  app.put("/products/:id",  verifyToken,  isAdmin, upload.single("files")  , product.update)
-// app.get("/products/count",  verifyToken,   product.count)
-// app.delete("/products/:id",  verifyToken, isAdmin, product.deleteProduct);
-// app.get("/products/:category",  verifyToken,   product.getByCategory)
-// app.get("/singleproducts/:id",  verifyToken,   product.getById)
-// app.post("/adverts",  verifyToken, isAdmin, upload.single("files"), product.saveAdvertsImage)
-// app.get("/adverts",  verifyToken,  product.findAllAdverts)
-// app.delete("/adverts/:id",  verifyToken, isAdmin, product.deleteAdvert);
+  app.get("/sellerproducts/:sellerId",  verifyToken, isSeller,  product.findAllProductsForAUser)
+  app.get("/products/:id",  verifyToken,   product.findProductById)
+ // app.get("/products/count",  verifyToken,   product.countProduct)
+  app.delete("/products/:id",  verifyToken, isSeller, product.deleteProduct);
+   app.put("/products/:id",  verifyToken, isSeller,  product.updateProduct)
+
 }

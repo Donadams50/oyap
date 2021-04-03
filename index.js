@@ -33,6 +33,7 @@ db.mongoose
 
 require('./app/members/members.routes')(app)
 require("./app/products/products.routes.js")(app)
+require("./app/files/files.routes.js")(app)
 
 
 
