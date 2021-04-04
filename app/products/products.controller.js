@@ -1,6 +1,6 @@
 const db = require("../mongoose");
 const Products = db.products;
-const Adverts = db.adverts;
+const Producttypes = db.producttypes;
  const sendemail = require('../helpers/emailhelper.js');
  const dotenv=require('dotenv');
  dotenv.config();
@@ -80,7 +80,7 @@ exports.findAllProductsForAUser = async (req, res) => {
             res.status(200).send(findAllProduct)
         }else{
             const page = offset1 -1;
-            const findAllProduct = await Products.find({sellerId:sellerId, productCategory:productCategory, productType: productType, productInStock: productInStock }).sort({ _id: "desc" })
+            const findAllProduct = await Products.find({sellerId:sellerId}).sort({ _id: "desc" })
         .limit(resultsPerPage)
         .skip(resultsPerPage * page)
         console.log(findAllProduct)
@@ -178,6 +178,95 @@ exports.deleteProduct = async (req, res) => {
            res.status(500).send({message:"Error while getting questions "})
        }
 }
+
+//get product by TYPE
+exports.findProductByType = async (req, res) => {
+    try{
+        
+        let type = req.params.type;
+        
+            const findProductByTypes = await Producttypes.find({productType:type}).sort({ _id: "desc" })    
+            console.log(findProductByTypes)
+            res.status(200).send(findProductByTypes)
+              
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting product "})
+       }
+};
+
+
+exports.createProductType = async(req, res) => {
+    console.log(req.body)
+    // let {myrefCode} = req.query;
+    const {    productCategory , productType } = req.body;
+    
+    if ( productType && productCategory  ){
+        if (  productType==="" || productCategory==="" ){
+            res.status(400).send({
+                message:"Incorrect entry format"
+            });
+        }else{ 
+     
+          
+            const producttypes = new Producttypes({
+              productType: req.body.productType,
+              productCategory: req.body.productCategory
+         
+              });
+    
+         
+            try{                  
+                const findProductByCategory = await Producttypes.findOne({productCategory:productCategory})
+          
+              console.log(findProductByCategory)
+              if(findProductByCategory){     
+                  res.status(400).send({message:"This category already exist"})
+              }else{
+                  const saveproducttype = await  producttypes.save()
+                  console.log(saveproducttype)
+                 res.status(201).send({message:"Product type created"})        
+              }
+            }catch(err){
+                console.log(err)
+                res.status(500).send({message:"Error while creating product type "})
+            }
+        }
+    }else{
+        res.status(400).send({
+            message:"Incorrect entry format"
+        });
+    }
+    };
+  
+
+      // Find all products 
+exports.getAllProduct = async (req, res) => {
+    try{
+        console.log(req.query)
+      
+        const resultsPerPage =  parseInt(req.query.limit);
+        const offset1 = parseInt(req.query.offset);
+        console.log(resultsPerPage)
+        console.log(offset1)
+        if(offset1 === 1){
+            const findAllProduct = await Products.find().sort({ _id: "desc" })
+            .limit(resultsPerPage)
+            console.log(findAllProduct)
+            res.status(200).send(findAllProduct)
+        }else{
+            const page = offset1 -1;
+            const findAllProduct = await Products.find().sort({ _id: "desc" })
+        .limit(resultsPerPage)
+        .skip(resultsPerPage * page)
+        console.log(findAllProduct)
+        res.status(200).send(findAllProduct)
+    }        
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting product "})
+       }
+};
   // Count all products 
 exports.countProduct = async (req, res) => {
     try{
@@ -193,36 +282,6 @@ exports.countProduct = async (req, res) => {
      }catch(err){
            console.log(err)
            res.status(500).send({message:"Error while counting product "})
-       }
-};
-
-//get product by category
-exports.getByCategory = async (req, res) => {
-    try{
-        console.log(req.query)
-      
-        const resultsPerPage =  parseInt(req.query.limit);
-        const offset1 = parseInt(req.query.offset);
-        let category = req.params.category;
-        console.log(resultsPerPage)
-        console.log(offset1)
-        if(offset1 === 1){
-            
-            const findAllProduct = await Products.find({category:category}).sort({ _id: "desc" })
-            .limit(resultsPerPage)
-            console.log(findAllProduct)
-            res.status(200).send(findAllProduct)
-        }else{
-            const page = offset1 -1;
-        const findAllProduct = await Products.find({category:category}).sort({ _id: "desc" })
-        .limit(resultsPerPage)
-        .skip(resultsPerPage * page)
-        console.log(findAllProduct)
-        res.status(200).send(findAllProduct)
-    }        
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting product "})
        }
 };
 

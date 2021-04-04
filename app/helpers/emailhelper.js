@@ -15,8 +15,8 @@ exports.emailUtility= async (emailFrom, emailTo, emailSubject,  emailLink, email
                 service: 'gmail',
             auth: {
                 // should be replaced with real sender's account
-                user: process.env.emaillUser,
-                pass: process.env.emailPassword        
+                user: process.env.user,
+                pass: process.env.pass       
             },
             });
   const handlebarsOptions= {
@@ -78,18 +78,14 @@ exports.emaiforgotPassword= async (emailFrom, emailTo, subject, link, link2, tex
 
 async function wrapedSendMail(){
     return new Promise((resolve,reject)=>{
-    let transport = nodemailer.createTransport({
-        name: process.env.mailName,
-        host: process.env.host,
-        port: 25,
-        secure: false,
-        ignoreTLS: true,
-    auth: {
-        // should be replaced with real sender's account
-        user: process.env.user,
-        pass: process.env.pass     
-    },
-    });
+        let transport = nodemailer.createTransport({
+            service: 'gmail',
+        auth: {
+            // should be replaced with real sender's account
+            user: process.env.user,
+            pass: process.env.pass       
+        },
+        });
 const handlebarsOptions= {
   viewEngine:{
       extName:'forgotpassword.handlebars',

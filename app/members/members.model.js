@@ -7,6 +7,7 @@ module.exports = mongoose => {
         email:String,
         phoneNumber:String,
         forgotPasswordCode: String,
+        forgotPasswordCodeStatus: Boolean,
         verificationCode: String,
         forgotPaswordCodeStatus: Boolean,
         isVerified: Boolean,

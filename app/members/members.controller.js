@@ -40,7 +40,7 @@ exports.create = async(req,res)=>{
                     pickUpDetails: '', 
                     billingDetails: {},
                     isEnabled: false,
-                    forgotPaswordCodeStatus: false
+                    forgotPasswordCodeStatus: false
                     
                     });
                   const auths = new Auths({ 
@@ -317,8 +317,8 @@ console.log(req.body)
                 if(updatePassword){
                 const _id =   getuser._id 
                 const updateCode = await Members.findOneAndUpdate({_id}, { forgotPasswordCode: newForgotPasswordCode  });
-                console.log(updatePassword)
-                console.log(updateCode)
+                const updateCodeStatus = await Members.findOneAndUpdate({_id}, { forgotPasswordCodeStatus: false  });
+               
                 
 
                 const emailFrom = 'oyap@admin.com';
@@ -354,16 +354,16 @@ console.log(req.body)
 }
 
 
-exports.forgotPasswordCodeStatus = async(req,res)=>{
+exports.verifyForgotpasswordlink = async(req,res)=>{
     if (!req.body){
         res.status(400).send({message:"Content cannot be empty"});
     }
-console.log(req.body)
+     console.log(req.body)
   // let {myrefCode} = req.query;
     const { code} = req.body;
   
     if ( code ){
-        if (  code === " "  ){
+        if (  code === ""  ){
             res.status(400).send({
                 message:"One of the entry is empty"
             });
@@ -377,26 +377,24 @@ console.log(req.body)
               const getcode = await Members.findOne({forgotPasswordCode: req.body.code} )
               
               if(getcode){
+               
+                if(getcode.forgotPasswordCodeStatus === true){
+                    res.status(400).send({
+                        message:"This link you selected has been used "
+                    });
+                
+                }else{
                 console.log(getcode)
-              
-                
-              
                
-               
-                const _id =   getuser._id 
-                const updateCode = await Members.findOneAndUpdate({_id}, { forgotPasswordCode: newForgotPasswordCode  });
-                console.log(updatePassword)
-                console.log(updateCode)
-                
-
-               
-                  
-                res.status(200).send({message:"Password reset was succesfull"})
-                        
+                const _id =   getcode._id 
+                const updateCode = await Members.findOneAndUpdate({_id}, { forgotPasswordCodeStatus: true  });
+                   
+                res.status(200).send({message:"Link is valid"})
+            }      
              
             }  else{
                 res.status(400).send({
-                    message:"This link you selected has already been used. or invalid "
+                    message:"This link you selected is invalid "
                 });
             } 
                 
@@ -535,7 +533,7 @@ exports.updateMember = async(req, res) => {
                 pickUpDetails: req.body.pickUpDetails || '', 
                 billingDetails: req.body.billingDetails || {},
                 isEnabled:  req.body.isEnabled,
-                forgotPaswordCodeStatus: req.body.forgotPaswordCodeStatus
+                forgotPasswordCodeStatus: req.body.forgotPasswordCodeStatus
               });
              
     
