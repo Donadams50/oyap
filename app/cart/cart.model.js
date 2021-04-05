@@ -4,15 +4,25 @@ module.exports = mongoose => {
       {
         // productId: String,
         productId: { type: Schema.Types.ObjectId, ref: 'product' },
-        quantitySelected:Number,
+        cartQty:Number,
         userId:String,
+        subTotal : String,
+        productName: String,
+        productType:String,
         productCategory:String,
-        productPrice:String,
-        productImgUrl:Array,
-        productName:String,
-        productType: String,
-        sellerId : String
-
+        productPrice:Number,
+        productQuantity: Number,
+        productDescription: String,
+        productInStock:Boolean,
+        productImages: Array,
+        sellerId: String,
+        sellerphoneNumber: String,
+        sellerFirstName: String,
+        sellerLastName: String,
+        sellerRegDate: Date,
+        sellerEmail: String,
+        sellerpickUpDetails: String,
+        sellerProfilePic: String
         
       },
       { timestamps: true }

@@ -20,43 +20,39 @@ const logger = winston.createLogger({
  // Add new symptom  to category
  exports.create = async(req, res) => {
     console.log(req.body)
-    logger.log({
-        level: 'info',
-        message: 'The body of the message',
-        body: req.body,
-        time :  new Date()
-      });
-      logger.add(new winston.transports.Console({
-        format: winston.format.simple()
-      }));
-    const {   productId, userId, quantitySelected  } = req.body;
+   
+    const {   productId, cartQty, subTotal, productName,productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
     
-    if ( productId && userId && quantitySelected ){
-        if ( productId==="" || userId==="" || quantitySelected===""){
+    if ( productId && cartQty && subTotal && productName ){
+        if ( productId==="" || cartQty==="" || subTotal===""){
             res.status(400).send({
                 message:"Incorrect entry format"
             });
-   logger.log({
-    level: 'error',
-    message:"Incorrect entry format",
-    
-    time :  new Date()
-
-  });
-       logger.add(new winston.transports.Console({
-    format: winston.format.simple()
-  }));
+   
         }else{
     
           
             const cart = new Carts({
                 productId: req.body.productId,
-                userId: req.body.userId,
-                quantitySelected: req.body.quantitySelected,
+                cartQty: req.body.cartQty,
+                userId:req.user.id,
+                subTotal : req.body.subTotal,
                 productName: req.body.productName,
-                productImgUrl: req.body.productImgUrl,
-                productPrice:req.body.productPrice,
-                productCategory: req.body.productCategory
+                productType: req.body.productType,
+                productCategory:req.body.productCategory,
+                productPrice: req.body.productPrice,
+                productQuantity: req.body.productQuantity,
+                productDescription: req.body.productDescription,
+                productInStock:req.body.productInStock,
+                productImages: req.body.productImages,
+                sellerId: req.body.sellerId,
+                sellerphoneNumber: req.body.sellerphoneNumber,
+                sellerFirstName: req.body.sellerFirstName,
+                sellerLastName: req.body.sellerLastName,
+                sellerRegDate: req.body.sellerRegDate,
+                sellerEmail: req.body.sellerEmail,
+                sellerpickUpDetails: req.body.seller,
+                sellerProfilePic: req.body.sellerProfilePic
                 
           
               });
@@ -68,30 +64,12 @@ const logger = winston.createLogger({
               console.log(addcart)
            
                if(addcart._id){
-                logger.log({
-                    level: 'info',
-                    message:"added to cart succesfuly",
-                    
-                    time :  new Date()
                 
-                  });
-                  logger.add(new winston.transports.Console({
-                    format: winston.format.simple()
-                  }));
                res.status(201).send({message:"added to cart succesfuly"})
                   
                 
                }else{
-                logger.log({
-                  level: 'error',
-                  message:"not  succesfuly",
-                  
-                  time :  new Date()
-              
-                });
-                logger.add(new winston.transports.Console({
-                  format: winston.format.simple()
-                }));
+                
              
              
               res.status(400).send({message:"not succesfull "})
@@ -101,31 +79,22 @@ const logger = winston.createLogger({
                 
             }catch(err){
                 console.log(err)
-                logger.log({
-                  level: 'info',
-                  message:"Server Error",
-                  
-                  time :  new Date()
-              
-                });
-                logger.add(new winston.transports.Console({
-                  format: winston.format.simple()
-                }));
+               
                 res.status(500).send({message:"Error while creating question "})
             }
         }
     }else{
         res.status(400).send({
-            message:"Incorrect entry format"
+            message:"Incorrect entry format jj"
         });
     }
     };
     //get cart by userid
 exports.findCartByUserId = async (req, res) => {
     try{
-      console.log(req.url)
+     
       console.log(req.params)
-      console.log(req.query)
+      
         let id = req.params.id;         
             const findcart = await Carts.find({userId:id})
            // .populate('productId')

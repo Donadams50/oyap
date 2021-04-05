@@ -34,8 +34,7 @@ db.mongoose
 require('./app/members/members.routes')(app)
 require("./app/products/products.routes.js")(app)
 require("./app/files/files.routes.js")(app)
-
-
+require("./app/cart/cart.routes.js")(app)
 
  app.get('/',  (req,res)=>{
     res.status(200).send({message:"Welcome to OYAP"})
