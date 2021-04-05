@@ -40,7 +40,8 @@ exports.create = async(req,res)=>{
                     pickUpDetails: '', 
                     billingDetails: {},
                     isEnabled: false,
-                    forgotPasswordCodeStatus: false
+                    forgotPasswordCodeStatus: false,
+                    profilePic : ""
                     
                     });
                   const auths = new Auths({ 
@@ -534,7 +535,8 @@ exports.updateMember = async(req, res) => {
                 pickUpDetails: req.body.pickUpDetails || '', 
                 billingDetails: req.body.billingDetails || {},
                 isEnabled:  req.body.isEnabled,
-                forgotPasswordCodeStatus: req.body.forgotPasswordCodeStatus
+                forgotPasswordCodeStatus: req.body.forgotPasswordCodeStatus,
+                profilePic : req.body.profilePic
               });
              
     

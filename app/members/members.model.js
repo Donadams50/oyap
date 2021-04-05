@@ -9,13 +9,12 @@ module.exports = mongoose => {
         forgotPasswordCode: String,
         forgotPasswordCodeStatus: Boolean,
         verificationCode: String,
-        forgotPaswordCodeStatus: Boolean,
-        isVerified: Boolean,
-        isEnabled: Boolean, 
-        walletBalance: Number,
+       isVerified: Boolean,
+       isEnabled: Boolean, 
+       walletBalance: Number,
         pickUpDetails: String,
-        billingDetails: Object,
-        profilePic: String
+       billingDetails: Object,
+       profilePic: String
       },
 
       { timestamps: true }
