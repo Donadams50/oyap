@@ -33,6 +33,9 @@ exports.create = async(req, res) => {
             sellerFirstName: req.user.firstName,
             sellerLastName: req.user.lastName,
             sellerEmail: req.user.email,
+            sellerRegDate : req.user.createdAt,
+            sellerProfilePic: req.user.profilePic
+
        
             });
   

@@ -11,9 +11,12 @@ module.exports = mongoose => {
         productImages: Array,
         sellerId: String,
         sellerphoneNumber: String,
-        sellerName: String,
+        sellerFirstName: String,
+        sellerLastName: String,
+        sellerRegDate: Date,
         sellerEmail: String,
-        sellerpickUpDetails: String
+        sellerpickUpDetails: String,
+        sellerProfilePic: String
       },
       { timestamps: true }
     );

@@ -170,17 +170,18 @@ if ( email && password && role ){
                         const retrievedPassword = Auth.password
                         const retrievedRole =  User.role
                         const id = User._id;
-                        const {  firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance } = User
+                        const {  firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance,createdAt } = User
+                        const profilePic = User.profilePic || ""
                         const isMatch = await passwordUtils.comparePassword(password.toLowerCase(), retrievedPassword);
                         console.log(isMatch )
                         if (isMatch){
                             if(retrievedRole === receivedRole){
                                 
-                        const tokens = signToken( id, firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance) 
+                        const tokens = signToken( id, firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance, createdAt, profilePic) 
                     
                         let user = {}
                         
-                            user.profile = { id,firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance} 
+                            user.profile = { id,firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance,createdAt, profilePic} 
                             user.token = tokens;                
                             res.status(200).send(user)  
                             
@@ -605,6 +606,39 @@ exports.findMembeById = async (req, res) => {
 
 };
 
+exports.updateBillingDetails = async(req,res)=>{
+    if (!req.body){
+        res.status(400).send({message:"Content cannot be empty"});
+    }
+console.log(req.body)
+  // let {myrefCode} = req.query;
+    const { billingDetails} = req.body;
+  
+    if ( billingDetails  ){
+        if ( billingDetails===""  ){
+            res.status(400).send({
+                message:"Incorrect entry format"
+            });
+        }else{
+                    
+            try{
+            
+                const _id  = req.params.id
+                const updateBillingDetails= await Members.findOneAndUpdate({ _id }, { billingDetails: billingDetails });
+                console.log(updateBillingDetails)                              
+                res.status(200).send({message:"Billing details updated succesfully"})           
+                
+            }catch(err){
+                console.log(err)
+                res.status(500).send({message:"Error while updating billing details "})
+            }
+        }
+    }else{
+        res.status(400).send({
+            message:"Incorrect entry format"
+        });
+    }
+}
 
 
 

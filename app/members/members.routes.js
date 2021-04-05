@@ -13,7 +13,7 @@ module.exports = app => {
      app.post("/reset",    member.resetPassword)
      app.put("/member/:id", verifyToken,  member.updateMember)
      app.post("/link/verify/forgotpasswordcode" ,      member.verifyForgotpasswordlink)
-    // app.get("/members/:id",  verifyToken, isAdmin,  member.findMembeById)
+     app.put("/billingdetails/:id",  verifyToken, isBuyer,  member.updateBillingDetails)
     // app.get("/members/loanofficer/:id",  verifyToken, isAdmin,  member.findLoanOfficer)
     // app.get("/member/count",  verifyToken, isAdmin,  member.countUsers)
 

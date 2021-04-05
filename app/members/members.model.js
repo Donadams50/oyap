@@ -14,7 +14,8 @@ module.exports = mongoose => {
         isEnabled: Boolean, 
         walletBalance: Number,
         pickUpDetails: String,
-        billingDetails: Object
+        billingDetails: Object,
+        profilePic: String
       },
 
       { timestamps: true }
