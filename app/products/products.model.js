@@ -24,15 +24,15 @@ module.exports = mongoose => {
     
  
 
-   schema.path('productPrice').get(function(num) {
-     console.log(num)
-    return (num / 100).toFixed(2);
-   });
+//    schema.path('productPrice').get(function(num) {
+     
+//     return (num / 100).toFixed(2);
+//    });
 
-// Setter
-  schema.path('productPrice').set(function(num) {
-    return num * 100;
- });
+// // Setter
+//   schema.path('productPrice').set(function(num) {
+//     return num * 100;
+//  });
   schema.method("toJSON", function() {
       const { __v, _id, ...object } = this.toObject();
       object.id = _id;
