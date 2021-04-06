@@ -21,10 +21,14 @@ const logger = winston.createLogger({
  exports.create = async(req, res) => {
     console.log(req.body)
    
-    const {   id, cartQty, subTotal, productName,productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
-    
-    if ( id && cartQty && subTotal && productName ){
-        if ( id==="" || cartQty==="" || subTotal===""){
+    const {    cartQty, subTotal, productName,productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
+    if (productId ){
+        const proId = req.body.productId
+    }else{
+        const proId = req.body.id
+    }
+    if (  cartQty && subTotal && productName ){
+        if (  cartQty==="" || subTotal===""){
             res.status(400).send({
                 message:"Incorrect entry format"
             });
@@ -33,7 +37,7 @@ const logger = winston.createLogger({
     
           
             const cart = new Carts({
-                productId: req.body.id,
+                productId: proId,
                 cartQty: req.body.cartQty,
                 userId:req.user.id,
                 subTotal : req.body.subTotal,
@@ -60,7 +64,7 @@ const logger = winston.createLogger({
          
             try{
            
-                const isProductExist = await Carts.findOne({productId: id, userId: req.user.id })
+                const isProductExist = await Carts.findOne({productId: proId, userId: req.user.id })
                 if(isProductExist){
                  const _id = isProductExist.id
                     const updateCartQty= await Carts.findOneAndUpdate({ _id }, { cartQty: cartQty });
