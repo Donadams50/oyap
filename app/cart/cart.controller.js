@@ -22,7 +22,7 @@ const logger = winston.createLogger({
     console.log(req.body)
    
     const {    cartQty, subTotal, productName,productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
-    if (productId ){
+    if (req.body.productId ){
         const proId = req.body.productId
     }else{
         const proId = req.body.id
