@@ -57,9 +57,9 @@ const logger = winston.createLogger({
                 sellerEmail: req.body.sellerEmail,
                 sellerpickUpDetails: req.body.seller,
                 sellerProfilePic: req.body.sellerProfilePic
-                
+            
           
-              });
+              }); 
     
          
             try{
@@ -67,18 +67,20 @@ const logger = winston.createLogger({
                 const isProductExist = await Carts.findOne({productId: proId, userId: req.user.id })
                 if(isProductExist){
                  const _id = isProductExist.id
-                    const updateCartQty= await Carts.findOneAndUpdate({ _id }, { cartQty: cartQty });
-                    const updateCart= await Carts.findOneAndUpdate({ _id }, { subTotal: subTotal });  
+                   const cartqty = parseFloat(isProductExist.cartQty)  + parseFloat(cartQty);
+                   const subtotal = parseFloat(isProductExist.subTotal)  + parseFloat(subTotal) ;
+                    const updateCartQty= await Carts.findOneAndUpdate({ _id }, { cartQty: cartqty });
+                    const updateCart= await Carts.findOneAndUpdate({ _id }, { subTotal: subtotal });  
                     if(updateCartQty &&updateCart){
-                        console.log("addcart")   
-                        res.status(201).send({message:"added to cart succesfuly"})   
+                        console.log("addcart 5")   
+                        res.status(201).send({message:"added to cart succesfuly 5" })   
                     }else{
                         res.status(400).send({message:"not succesfull "})
                     }
 
                     }else{            
                         const  addcart = await  cart.save()
-                        console.log(addcart)              
+                        console.log("addcart")              
                          if(addcart._id){                         
                          res.status(201).send({message:"added to cart succesfuly"})                   
                          }else{                  

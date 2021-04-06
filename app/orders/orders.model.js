@@ -5,11 +5,10 @@ module.exports = mongoose => {
         totalPrice:String,
         status: String,
         userId: String,
-        firstName: String,
-        lastName: String,
+        sellerId: String,
         products: Array,
         paymentId: String,
-        shippinDetails: Object
+       
       },
       { timestamps: true }
     );
