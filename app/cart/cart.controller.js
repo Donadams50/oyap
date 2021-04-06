@@ -22,11 +22,7 @@ const logger = winston.createLogger({
     console.log(req.body)
    
     const {    cartQty, subTotal, productName,productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
-    if (req.body.productId ){
-        const proId = req.body.productId
-    }else{
-        const proId = req.body.id
-    }
+ 
     if (  cartQty && subTotal && productName ){
         if (  cartQty==="" || subTotal===""){
             res.status(400).send({
@@ -34,7 +30,11 @@ const logger = winston.createLogger({
             });
    
         }else{
-    
+            if (req.body.productId ){
+                 proId = req.body.productId
+            }else{
+                 proId = req.body.id
+            }
           
             const cart = new Carts({
                 productId: proId,
