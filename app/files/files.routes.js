@@ -8,7 +8,7 @@ module.exports = app => {
   
   app.post("/image", verifyToken,  upload.single("file"),  files.postImage)
 
-  
+  app.post("/profileimage", verifyToken,  upload.single("file"),  files.postImage)
 
 
     }

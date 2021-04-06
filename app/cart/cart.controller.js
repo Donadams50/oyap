@@ -21,10 +21,10 @@ const logger = winston.createLogger({
  exports.create = async(req, res) => {
     console.log(req.body)
    
-    const {   productId, cartQty, subTotal, productName,productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
+    const {   id, cartQty, subTotal, productName,productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
     
-    if ( productId && cartQty && subTotal && productName ){
-        if ( productId==="" || cartQty==="" || subTotal===""){
+    if ( id && cartQty && subTotal && productName ){
+        if ( id==="" || cartQty==="" || subTotal===""){
             res.status(400).send({
                 message:"Incorrect entry format"
             });
@@ -33,7 +33,7 @@ const logger = winston.createLogger({
     
           
             const cart = new Carts({
-                productId: req.body.productId,
+                productId: req.body.id,
                 cartQty: req.body.cartQty,
                 userId:req.user.id,
                 subTotal : req.body.subTotal,
@@ -59,23 +59,33 @@ const logger = winston.createLogger({
     
          
             try{
-      
-              const  addcart = await  cart.save()
-              console.log(addcart)
            
-               if(addcart._id){
-                
-               res.status(201).send({message:"added to cart succesfuly"})
-                  
-                
-               }else{
-                
-             
-             
-              res.status(400).send({message:"not succesfull "})
-                
-          }
-                       
+                const isProductExist = await Carts.findOne({productId: id, userId: req.user.id })
+                if(isProductExist){
+                 const _id = isProductExist.id
+                    const updateCartQty= await Carts.findOneAndUpdate({ _id }, { cartQty: cartQty });
+                    const updateCart= await Carts.findOneAndUpdate({ _id }, { subTotal: subTotal });  
+                    if(updateCartQty &&updateCart){
+                        console.log("addcart")   
+                        res.status(201).send({message:"added to cart succesfuly"})   
+                    }else{
+                        res.status(400).send({message:"not succesfull "})
+                    }
+
+                    }else{            
+                        const  addcart = await  cart.save()
+                        console.log(addcart)              
+                         if(addcart._id){                         
+                         res.status(201).send({message:"added to cart succesfuly"})                   
+                         }else{                  
+                        res.status(400).send({message:"not succesfull "})
+                          
+                    }
+                        
+                   
+                     
+               }
+                      
                 
             }catch(err){
                 console.log(err)

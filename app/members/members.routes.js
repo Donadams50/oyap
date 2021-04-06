@@ -15,7 +15,7 @@ module.exports = app => {
      app.post("/link/verify/forgotpasswordcode" ,      member.verifyForgotpasswordlink)
      app.put("/billingdetails/:id",  verifyToken, isBuyer,  member.updateBillingDetails)
     // app.get("/members/loanofficer/:id",  verifyToken, isAdmin,  member.findLoanOfficer)
-    // app.get("/member/count",  verifyToken, isAdmin,  member.countUsers)
+     app.get("/member/:id",  verifyToken,   member.findMembeById)
 
     // app.post("/changepassword",verifyToken,  member.changePassword)
 

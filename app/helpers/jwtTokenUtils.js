@@ -4,9 +4,9 @@ const dotenv=require('dotenv');
 dotenv.config();
   
 
-exports.signToken= (id, firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance, createdAt, profilePic)=> {
+exports.signToken= (id, firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance, createdAt, profilePic, billingDetails, pickUpDetails)=> {
     const key = process.env.SECRET_KEY;
-    const token = jwt.sign({ id: id, firstName:firstName ,  role: role, lastName:lastName , phoneNumber:phoneNumber, email:email , isVerified: isVerified, walletBalance:walletBalance, isEnabled: isEnabled,createdAt: createdAt, profilePic: profilePic }, key, { expiresIn: '1h' });
+    const token = jwt.sign({ id: id, firstName:firstName ,  role: role, lastName:lastName , phoneNumber:phoneNumber, email:email , isVerified: isVerified, walletBalance:walletBalance, isEnabled: isEnabled,createdAt: createdAt, profilePic: profilePic, billingDetails : billingDetails, pickUpDetails : pickUpDetails }, key, { expiresIn: '1h' });
     return token;
   }
 

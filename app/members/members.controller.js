@@ -173,16 +173,18 @@ if ( email && password && role ){
                         const id = User._id;
                         const {  firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance,createdAt } = User
                         const profilePic = User.profilePic || ""
+                        const billingDetails = User.billingDetails || {}
+                        const pickUpDetails = User.pickUpDetails || ""
                         const isMatch = await passwordUtils.comparePassword(password.toLowerCase(), retrievedPassword);
                         console.log(isMatch )
                         if (isMatch){
                             if(retrievedRole === receivedRole){
                                 
-                        const tokens = signToken( id, firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance, createdAt, profilePic) 
+                        const tokens = signToken( id, firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance, createdAt, profilePic, billingDetails, pickUpDetails) 
                     
                         let user = {}
                         
-                            user.profile = { id,firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance,createdAt, profilePic} 
+                            user.profile = { id,firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance,createdAt, profilePic, billingDetails, pickUpDetails} 
                             user.token = tokens;                
                             res.status(200).send(user)  
                             
@@ -597,7 +599,7 @@ exports.findMembeById = async (req, res) => {
    try{
        
             let id = req.params.id
-        const findMemberById = await Members.findOne({id: id})
+        const findMemberById = await Members.findOne({_id: id})
        
         res.status(200).send(findMemberById)
            

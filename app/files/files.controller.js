@@ -7,7 +7,7 @@ exports.postImage = async(req,res)=>{
         
                 res.status(201).send(            
                         {
-                            message:"File uploaded successfully ",
+                            message:"Image uploaded successfully ",
                             imageUrl:  req.file.url
                         }
                    
