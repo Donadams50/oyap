@@ -515,10 +515,10 @@ exports.updateMember = async(req, res) => {
 
     const { firstName,role,lastName,email,isEnabled,phoneNumber, isVerified } = req.body;
   
-    if ( firstName && role  && role && lastName && email && isEnabled && phoneNumber && isVerified){
-          if ( firstName==="" ||  role==="" || lastName==="" || isEnabled===""  || email==="" || phoneNumber===  "" || isVerified === "" ){
+    if ( firstName && role   && lastName && email && isEnabled && phoneNumber && isVerified){
+          if ( firstName==="" ||  role==="" || lastName===""   || email==="" || phoneNumber===  ""  ){
             res.status(400).send({
-                message:"Incorrect entry format"
+                message:"Incorrect entry format5"
             });
         }else{
            

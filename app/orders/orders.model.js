@@ -1,14 +1,16 @@
 module.exports = mongoose => {
     var schema = mongoose.Schema(
       {
-        
-        totalPrice:String,
         status: String,
-        userId: String,
+        buyerId: String,
         sellerId: String,
-        products: Array,
-        paymentId: String,
-       
+        cartItems: Array,
+        paymentResponse: Object,
+        billingDetails: Object,
+        shippingFee: String,
+        totalAmountPaid: String,
+        timeLine : Array,
+        logisticId : String
       },
       { timestamps: true }
     );

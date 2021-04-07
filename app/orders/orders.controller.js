@@ -22,14 +22,19 @@ exports.create = async(req, res) => {
         const shippingaddress = JSON.parse(req.body.shippingDetails)
           const orders = new Orders({
              
-              paymentId: req.body.paymentId,
-              totalPrice: req.body.amountPaid,
+            
+              
               status: "Pending",
-              userId: req.user.id,
-              firstName: req.user.firstName,
-              lastName: req.user.lastName,
-              products: JSON.parse( req.body.products) ,
-              shippinDetails: shippingaddress
+              buyerId: req.user.id,
+              sellerId: "String",
+              cartItems: req.body.cartItems,
+              paymentResponse: req.body.paymentResponse,
+              billingDetails: req.body.billingDetails,
+              shippingFee: req.body.shippingFee,
+              totalAmountPaid: req.body.totalAmountPaid,
+              timeLine : "Pay",
+              logisticId : "string",
+              shippinDetails: "shippingaddress"
             
 
         
