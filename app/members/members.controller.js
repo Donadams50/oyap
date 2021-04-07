@@ -515,7 +515,7 @@ exports.updateMember = async(req, res) => {
 
     const { firstName,role,lastName,email,isEnabled,phoneNumber, isVerified } = req.body;
   
-    if ( firstName && role   && lastName && email && isEnabled && phoneNumber && isVerified){
+    if ( firstName && role   && lastName && email  && phoneNumber ){
           if ( firstName==="" ||  role==="" || lastName===""   || email==="" || phoneNumber===  ""  ){
             res.status(400).send({
                 message:"Incorrect entry format5"
@@ -560,7 +560,7 @@ exports.updateMember = async(req, res) => {
         }
     }else{
         res.status(400).send({
-            message:"Incorrect entry format"
+            message:"Incorrect entry format6"
         });
     }
                    
