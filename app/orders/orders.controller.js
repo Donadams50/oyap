@@ -8,70 +8,30 @@ const Notifications = db.notifications;
   const sendemail = require('../helpers/emailhelper.js');
 
 // Add new product to database
-exports.create = async(req, res) => {
+exports.createOrder = async(req, res) => {
   console.log(req.body)
-  const {    paymentId  , amountPaid } = req.body;
+  const {   cartItems, paymentResponse  , billingDetails, shippingFee, totalAmountPaid } = req.body;
   
-  if ( amountPaid && paymentId  ){
-      if ( amountPaid==="" || paymentId===""  ){
+  if ( cartItems&& paymentResponse  && billingDetails&& shippingFee&& totalAmountPaid  ){
+      if ( cartItems.length < 1  || shippingFee==="" || paymentResponse==="" || billingDetails==="" || totalAmountPaid===""  ){
           res.status(400).send({
               message:"Incorrect entry format"
           });
       }else{
-    
-        const shippingaddress = JSON.parse(req.body.shippingDetails)
-          const orders = new Orders({
-             
+           const buyer = req.user
+        for( var i = 0; i < cartItems.length; i++){
             
-              
-              status: "Pending",
-              buyerId: req.user.id,
-              sellerId: "String",
-              cartItems: req.body.cartItems,
-              paymentResponse: req.body.paymentResponse,
-              billingDetails: req.body.billingDetails,
-              shippingFee: req.body.shippingFee,
-              totalAmountPaid: req.body.totalAmountPaid,
-              timeLine : "Pay",
-              logisticId : "string",
-              shippinDetails: "shippingaddress"
-            
-
+            basic= await PersistOneByOne(cartItems[i], paymentResponse, billingDetails, shippingFee, totalAmountPaid, buyer);
+          
         
-            });
+          }
+     
+         
   
        
           try{
-             const emailFrom = 'Ahiajara Skin care    <noreply@Ahiajara.com>';
-                const subject = 'New order alert';                      
-                const hostUrl = "ahiajara.netlify.app/dashboard"
-                 const hostUrl2 = "https://ahiajara.netlify.app/dashboard" 
-              const admin = "Admin"
-                const   text = "An new order from "+req.user.firstName+" "+req.user.lastName+" has been placed, Login to the dashboard to view" 
-               const emailTo = 'tomiczilla@gmail.com'
-               const link = `${hostUrl}`;
-                 const link2 = `${hostUrl2}`;
-                 processEmail(emailFrom, emailTo, subject, link, link2, text, admin);
-
-                 const findadmin = await Members.findOne({isAdmin: 'true'} )
-                 console.log(findadmin)
-                  console.log(findadmin.id)
-                 const notify = new Notifications({
-                messageTo: findadmin.id,              
-                read: false,
-                messageFrom: req.user.id,
-                messageFromFirstname: req.user.firstName,
-                messageFromLastname: req.user.lastName,
-                message: 'A new order request from '+req.user.firstName+' '+req.user.lastName+''
-                
-          
-              });
-            
-               
-                const makeorder = await  orders.save()
-                const  requestOrder = await  notify.save()
-                console.log(makeorder)
-               res.status(201).send({message:"Order Succesful the admin will attend to it shortly"})
+             
+               res.status(201).send({message:"Order posted Succesfully"})
               
        
                      
@@ -87,6 +47,169 @@ exports.create = async(req, res) => {
       });
   }
   };
+
+  //find new order
+exports.findNewOrder = async (req, res) => {
+    try{
+
+
+        let id = req.params.id
+        console.log(id)
+
+        const timeLineStatus = "Payment Received"
+        const findOrder = await Orders.find({sellerId: id, 'timeLine.status': timeLineStatus })
+        console.log(findOrder)
+          if(findOrder){
+            res.status(200).send(findOrder)
+          }else{
+            res.status(400).send({message:"No new order to fetch "})
+          }
+       
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting orders "})
+       }
+};
+
+
+// confirm order
+exports.confirmOrder = async(req, res) => {
+       
+            try{
+                          
+          
+                      const _id = req.params.orderId;
+                    getOrder = await Orders.findOne({_id: _id})
+                    console.log(getOrder)
+                    getBuyerDetails = await Members.findOne({_id:getOrder.buyerId})
+                    if(getOrder.sellerId === req.user.id){
+                        const timeline = {
+                            "status" : " Order Confirmed",
+                            "dateOccured":  new Date()
+                        }
+                const updateOrder = await Orders.updateOne({_id: _id}, { $addToSet: { timeLine: [timeline] } } );
+
+                        if(updateOrder){
+                const postIsComplete = await Orders.findOneAndUpdate({ _id }, { isConfirmed: true });         
+                  const emailFrom = 'Oyap   <noreply@oyap.com.ng>';
+                 const subject = 'Order Confirmed';                      
+                 const hostUrl = "oyap.netlify.app"
+                 const hostUrl2 = "https://oyap.netlify.app" 
+                 const username =  getBuyerDetails.firstName
+                 const   text = "This order has been confirmed by the farmer" 
+               const emailTo = getBuyerDetails.email
+               const link = `${hostUrl}`;
+                 const link2 = `${hostUrl2}`;
+                 processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+
+                 res.status(200).send({message:"Order confirmed succesfully"})
+
+                }else{
+                    res.status(400).send({message:"Order not found "})
+                }
+    
+            }else{
+                res.status(400).send({message:"Seller Id Invalid "})
+            }
+            }catch(err){
+                console.log(err)
+                res.status(500).send({message:"Error while confirming order "})
+            }
+     
+    };
+
+exports.findOrderByStatusBuyer = async (req, res) => {
+        try{
+            
+            let status = req.params.status
+            const findOrderByStatus = await Orders.find({ buyerId:req.user.id, status: status}).sort({ _id: "desc" })
+            // .limit(resultsPerPage)
+            // .skip(resultsPerPage * page)
+           // console.log(findOrderByStatus)
+            res.status(200).send(findOrderByStatus)
+        // }        
+           }catch(err){
+               console.log(err)
+               res.status(500).send({message:"Error while getting orders "})
+           }
+    };
+ exports.findOrderByStatusSeller = async (req, res) => {
+        try{
+            
+            let status = req.params.status
+             if(status === "Confirmed"){
+                 stat = "Pending"
+             }else{
+                 stat = status;
+             }
+            const findOrderByStatus = await Orders.find({ sellerId:req.user.id, isConfirmed : true, status : stat}).sort({ _id: "desc" })
+            // .limit(resultsPerPage)
+            // .skip(resultsPerPage * page)
+           // console.log(findOrderByStatus)
+            res.status(200).send(findOrderByStatus)
+        // }        
+           }catch(err){
+               console.log(err)
+               res.status(500).send({message:"Error while getting orders "})
+           }
+    };
+
+
+
+
+
+
+
+
+
+
+
+async function processEmail(emailFrom, emailTo, subject, link, link2, text, fName){
+  try{
+      //create org details
+      // await delay();
+     const sendmail =  await sendemail.emailUtility(emailFrom, emailTo, subject, link, link2, text, fName);
+   //  console.log(sendmail)
+      return sendmail
+  }catch(err){
+      console.log(err)
+      return err
+  }
+
+}
+
+exports.completedOrderByUserId = async (req, res) => {
+    try{
+      
+            let status = "Completed"
+            let userId = req.params.userId
+        const findOrder = await Orders.find({status: status, userId: userId} ).sort({ _id: "desc" })
+        
+        console.log(findOrder)
+        res.status(200).send(findOrder)
+    // }        
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting orders "})
+       }
+};
+
+exports.inCompletedOrderByUserId = async (req, res) => {
+    try{
+      
+            let status = "Pending"
+             let status1 = "Dispatched"
+              let userId = req.params.userId
+        const findOrder = await Orders.find({$or:[{status: status1, userId: userId},{status: status, userId: userId}]} ).sort({ _id: "desc" })
+   
+        console.log(findOrder)
+        res.status(200).send(findOrder)
+    // }        
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting orders "})
+       }
+};
 
 // dispatch order
 exports.dispatchOrder = async(req, res) => {
@@ -150,181 +273,70 @@ exports.dispatchOrder = async(req, res) => {
     }
     };
 
-// complete order
-exports.completeOrder = async(req, res) => {
-       
-            try{
-                          
-              console.log(req.body)
-              console.log(req.params)  
-                    const _id = req.params.orderId;
-                    getOrder = await Orders.findOne({_id: _id})
-                  if(getOrder.status === "Dispatched"){
-                const updateOrder = await Orders.findOneAndUpdate({ _id }, { status: 'Completed' });
-                        if(updateOrder){
-                  console.log(updateOrder)
+async function PersistOneByOne(cartDetails, paymentResponse, billingDetails, shippingFee, totalAmountPaid, buyer){
+    const orders = new Orders({      
+        status: "Pending",
+        buyerId: buyer.id,
+        sellerId: cartDetails.sellerId,
+        cartItem: cartDetails,
+        paymentResponse: paymentResponse,
+        billingDetails: billingDetails,
+        shippingFee: shippingFee,
+        totalAmountPaid:totalAmountPaid,
+        timeLine : [{
+            status : "Payment Received",
+            dateOccured:  new Date()
+        }],
+        logisticId : "",
+        isConfirmed : false
+      });
+            
+                
+                      
 
-                 res.status(200).send({message:"Order mark completed succesfully"})
+               try{
+              
 
-                }else{
-                    res.status(400).send({message:"Order not found "})
-                }
-            } else{
-                res.status(400).send({message:"Order as not been dispatched "})
-            }             
-        
+                  await delay();
+            
+                const emailFrom = 'Oyap   <noreply@oyap.com.ng>';
+                 const subject = 'New order alert';                      
+                 const hostUrl = "oyap.netlify.app"
+                 const hostUrl2 = "https://oyap.netlify.app" 
+                 const username =  cartDetails.firstName
+                 const   text = "An new order from "+buyer.firstName+" "+buyer.lastName+" has been placed, Login to the dashboard to view and" 
+               const emailTo = cartDetails.sellerEmail
+               const link = `${hostUrl}`;
+                 const link2 = `${hostUrl2}`;
+                 processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+
+                //  const findadmin = await Members.findOne({isAdmin: 'true'} )
+                 
+            //      const notify = new Notifications({
+            //     messageTo: findadmin.id,              
+            //     read: false,
+            //     messageFrom: req.user.id,
+            //     messageFromFirstname: req.user.firstName,
+            //     messageFromLastname: req.user.lastName,
+            //     message: 'A new order request from '+req.user.firstName+' '+req.user.lastName+''
+                
+          
+            //   });
+            
+               
+                const makeorder = await  orders.save()
+                
+                console.log(makeorder)
+                return "done"
+                
+              
+
             }catch(err){
                 console.log(err)
-                res.status(500).send({message:"Error while completing order "})
+                //console.log("eror")
             }
-     
-    };
-
-
-  // process email one
-
-
-
-
-
-
-exports.findPendingOrder = async (req, res) => {
-    try{
-        
-            let status = "Pending"
-        const findPendingOrder = await Orders.find({status: status}).sort({ _id: "desc" })
-        // .limit(resultsPerPage)
-        // .skip(resultsPerPage * page)
-        console.log(findPendingOrder)
-        res.status(200).send(findPendingOrder)
-    // }        
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting orders "})
-       }
-};
-
-exports.findOrder = async (req, res) => {
-    try{
-        // console.log(req.query)
-      
-        // const resultsPerPage =  parseInt(req.query.limit);
-        // const offset1 = parseInt(req.query.offset);
-        // console.log(resultsPerPage)
-        // console.log(offset1)
-        // if(offset1 === 1){
-            // const findAllProduct = await Products.find().sort({ _id: "desc" })
-            // .limit(resultsPerPage)
-            // console.log(findAllProduct)
-            // res.status(200).send(findAllProduct)
-        // }else{
-            // const page = offset1 -1;
-            let status = req.params.status
-        const findOrder = await Orders.find({status: status}).sort({ _id: "desc" })
-        // .limit(resultsPerPage)
-        // .skip(resultsPerPage * page)
-        console.log(findOrder)
-        res.status(200).send(findOrder)
-    // }        
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting orders "})
-       }
-};
-
-exports.findOrderById = async (req, res) => {
-    try{
-        // console.log(req.params.id)
-         let orderDetails = {}
-            let id = req.params.id
-        const findOrder = await Orders.findOne({_id: id})
-       console.log(findOrder.userId)
-        console.log(findOrder.productId)
-        console.log(findOrder.firstName)
-        console.log(findOrder.lastName)
-        console.log(findOrder.imgUrl)
-        console.log(findOrder.price)
-        console.log(findOrder.status)
-        console.log(findOrder.name)
-        const findDispatchDetails = await Dispatchs.findOne({orderId: id})
-        
-        const findMemberById = await Members.findOne({_id: findOrder.userId})
-        const findProduct = await Products.findOne({_id:  findOrder.productId})
-        
-      //  console.log(findMemberById)
-       // console.log(findProduct)
-        orderDetails.order = findOrder
-        orderDetails.userDetails = findMemberById
-        orderDetails.productDetails = findProduct
-        orderDetails.dispatchDetails = findDispatchDetails
-     //   console.log(orderDetails)
-        res.status(200).send(orderDetails)
-    // }        
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting orders "})
-       }
-};
-exports.count = async (req, res) => {
-    try{
-const status = "Pending"
-const status1 = "Completed"
-allCount ={}
-        const countPending = await Orders.countDocuments({status: status})
-         const countCompleted = await Orders.countDocuments({status: status1})
-         console.log(countPending)
-         console.log(countCompleted)
-        allCount.pendingOrder = countPending;
-        allCount.completedOrder = countCompleted;
-          res.status(200).send({countOfAllOrder:allCount})
-     }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while counting orders "})
-       }
-};
-async function processEmail(emailFrom, emailTo, subject, link, link2, text, fName){
-  try{
-      //create org details
-      // await delay();
-     const sendmail =  await sendemail.emailUtility(emailFrom, emailTo, subject, link, link2, text, fName);
-   //  console.log(sendmail)
-      return sendmail
-  }catch(err){
-      console.log(err)
-      return err
-  }
 
 }
-
-exports.completedOrderByUserId = async (req, res) => {
-    try{
-      
-            let status = "Completed"
-            let userId = req.params.userId
-        const findOrder = await Orders.find({status: status, userId: userId} ).sort({ _id: "desc" })
-        
-        console.log(findOrder)
-        res.status(200).send(findOrder)
-    // }        
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting orders "})
-       }
-};
-
-exports.inCompletedOrderByUserId = async (req, res) => {
-    try{
-      
-            let status = "Pending"
-             let status1 = "Dispatched"
-              let userId = req.params.userId
-        const findOrder = await Orders.find({$or:[{status: status1, userId: userId},{status: status, userId: userId}]} ).sort({ _id: "desc" })
-   
-        console.log(findOrder)
-        res.status(200).send(findOrder)
-    // }        
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting orders "})
-       }
-};
+function delay() {
+    return new Promise(resolve => setTimeout(resolve, 300));
+  }

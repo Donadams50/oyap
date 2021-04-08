@@ -4,13 +4,14 @@ module.exports = mongoose => {
         status: String,
         buyerId: String,
         sellerId: String,
-        cartItems: Array,
+        cartItem: Object,
         paymentResponse: Object,
         billingDetails: Object,
         shippingFee: String,
         totalAmountPaid: String,
         timeLine : Array,
-        logisticId : String
+        logisticId : String,
+        isConfirmed: Boolean
       },
       { timestamps: true }
     );
