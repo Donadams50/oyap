@@ -2,8 +2,8 @@ module.exports = app => {
     const order = require("./orders.controller");
     const jwtTokenUtils = require('../helpers/jwtTokenUtils')
     const { verifyToken,  isSeller, isBuyer, isLogistics, isAdmin } = jwtTokenUtils;
-    require('../Cloudinary/cloudinary.js')
-    const upload = require('../Cloudinary/multer.js');
+    require('../cloudinary/cloudinary.js')
+    const upload = require('../cloudinary/multer.js');
  
         
    app.post("/order",  verifyToken, isBuyer,  order.createOrder)
