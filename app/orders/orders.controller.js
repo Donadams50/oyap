@@ -2,7 +2,7 @@ const db = require("../mongoose");
 const Orders = db.orders;
 const Members = db.profiles;
 const Carts = db.carts;
-
+const Products = db.products;
 
   const sendemail = require('../helpers/emailhelper.js');
 
@@ -50,20 +50,32 @@ exports.createOrder = async(req, res) => {
   //find new order
 exports.findNewOrder = async (req, res) => {
     try{
-
+        const resultsPerPage =  parseInt(req.query.limit);
+        const offset1 = parseInt(req.query.offset);
 
         let id = req.params.id
-        console.log(id)
+     
+        if(offset1 === 1){
+            const findOrder = await Orders.find({sellerId: id, isConfirmed : false }).sort({ _id: "desc" })
+            .limit(resultsPerPage)
+              if(findOrder){
+                res.status(200).send(findOrder)
+              }else{
+                res.status(400).send({message:"No new order to fetch "})
+              }
 
-        const timeLineStatus = "Payment Received"
-        const findOrder = await Orders.find({sellerId: id, 'timeLine.status': timeLineStatus })
-        console.log(findOrder)
-          if(findOrder){
+        }else{
+            const page = offset1 -1;
+            const findOrder = await Orders.find({sellerId: id, isConfirmed : false }).sort({ _id: "desc" })
+            .limit(resultsPerPage)
+            .skip(resultsPerPage * page)
+        if(findOrder){
             res.status(200).send(findOrder)
           }else{
             res.status(400).send({message:"No new order to fetch "})
           }
-       
+         }
+        
        }catch(err){
            console.log(err)
            res.status(500).send({message:"Error while getting orders "})
@@ -117,36 +129,59 @@ exports.confirmOrderSeller = async(req, res) => {
      
     };
 
+    // get orders by a particular seller
 exports.findOrderByStatusBuyer = async (req, res) => {
         try{
             
             let status = req.params.status
-            const findOrderByStatus = await Orders.find({ buyerId:req.user.id, status: status}).sort({ _id: "desc" })
-            // .limit(resultsPerPage)
-            // .skip(resultsPerPage * page)
-           // console.log(findOrderByStatus)
-            res.status(200).send(findOrderByStatus)
-        // }        
+            const resultsPerPage =  parseInt(req.query.limit);
+            const offset1 = parseInt(req.query.offset);
+           
+            
+
+            if(offset1 === 1){
+                const findOrderByStatus = await Orders.find({ buyerId:req.user.id, status: status}).sort({ _id: "desc" })
+                .limit(resultsPerPage)
+                    res.status(200).send(findOrderByStatus)
+            }else{
+                const page = offset1 -1;
+                const findOrderByStatus = await Orders.find({ buyerId:req.user.id, status: status}).sort({ _id: "desc" })
+                .limit(resultsPerPage)
+                .skip(resultsPerPage * page)
+            
+                res.status(200).send(findOrderByStatus)      
+             }       
            }catch(err){
                console.log(err)
                res.status(500).send({message:"Error while getting orders "})
            }
     };
+
+    // get orders by a particular seller
  exports.findOrderByStatusSeller = async (req, res) => {
         try{
-            
+            const resultsPerPage =  parseInt(req.query.limit);
+            const offset1 = parseInt(req.query.offset);
             let status = req.params.status
              if(status === "Confirmed"){
                  stat = "Pending"
              }else{
                  stat = status;
              }
-            const findOrderByStatus = await Orders.find({ sellerId:req.user.id, isConfirmed : true, status : stat}).sort({ _id: "desc" })
-            // .limit(resultsPerPage)
-            // .skip(resultsPerPage * page)
-           // console.log(findOrderByStatus)
-            res.status(200).send(findOrderByStatus)
-        // }        
+
+             if(offset1 === 1){
+                const findOrderByStatus = await Orders.find({ sellerId:req.user.id, isConfirmed : true, status : stat}).sort({ _id: "desc" })
+                .limit(resultsPerPage)
+                    res.status(200).send(findOrderByStatus)
+            }else{
+                const page = offset1 -1;
+                const findOrderByStatus = await Orders.find({ sellerId:req.user.id, isConfirmed : true, status : stat}).sort({ _id: "desc" })
+                .limit(resultsPerPage)
+                .skip(resultsPerPage * page)
+            
+                res.status(200).send(findOrderByStatus)      
+             }  
+               
            }catch(err){
                console.log(err)
                res.status(500).send({message:"Error while getting orders "})
@@ -229,10 +264,24 @@ exports.confirmOrderLogistics = async(req, res) => {
 
 };
 
-
-
-
-
+  // Count dashboard count 
+  exports.sellerDashboardCount = async (req, res) => {
+    try{
+      
+        const countConfirmedOrder = await Orders.countDocuments({ sellerId:req.user.id, isConfirmed : true, status : "Pending"})
+        const countCompletedOrder = await Orders.countDocuments({sellerId:req.user.id, isConfirmed : true, status : "Completed"})
+        const countNewOrder = await Orders.countDocuments({sellerId:req.user.id, isConfirmed : false, status : "Pending"})
+        const countAllProductSeller = await Products.countDocuments({sellerId:req.user.id})
+        console.log(countConfirmedOrder)
+        console.log(countCompletedOrder)
+        console.log(countNewOrder)
+        console.log(countAllProductSeller)
+          res.status(200).send({countConfirmedOrder:countConfirmedOrder,countCompletedOrder:countCompletedOrder,countNewOrder:countNewOrder, countAllProductSeller: countAllProductSeller})
+     }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while counting orders "})
+       }
+};
 
 
 

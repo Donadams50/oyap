@@ -71,9 +71,7 @@ exports.findAllProductsForAUser = async (req, res) => {
         const resultsPerPage =  parseInt(req.query.limit);
         const offset1 = parseInt(req.query.offset);
         const sellerId = req.params.sellerId
-        const productCategory= req.query.productCategory
-        const productType = req.query.productType
-        const productInStock = req.query.productInStock
+
         console.log(resultsPerPage)
         console.log(offset1)
         if(offset1 === 1){
