@@ -73,7 +73,7 @@ exports.findNewOrder = async (req, res) => {
 
 
 // confirm order
-exports.confirmOrder = async(req, res) => {
+exports.confirmOrderSeller = async(req, res) => {
        
             try{
                           
@@ -154,8 +154,81 @@ exports.findOrderByStatusBuyer = async (req, res) => {
            }
     };
 
+ exports.findOrderById = async (req, res) => {
+        try{
+            
+            let id = req.params.orderId
+            const findOrderById = await Orders.findOne({ _id:id})
+          
+            res.status(200).send(findOrderById)
+             
+           }catch(err){
+               console.log(err)
+               res.status(500).send({message:"Error while getting orders "})
+           }
+    };
 
+    
+ exports.getAllConfirmedOrder = async (req, res) => {
+        try{
+            
+           
+            const findOrderByStatus = await Orders.find({  isConfirmed : true, status : "Pending"}).sort({ _id: "desc" })
+           
+           
+            res.status(200).send(findOrderByStatus)
+              
+           }catch(err){
+               console.log(err)
+               res.status(500).send({message:"Error while getting orders "})
+           }
+    };
+    
+// confirm order
+exports.confirmOrderLogistics = async(req, res) => {
+       
+    try{
+                  
+  
+              const _id = req.params.orderId;
+            getOrder = await Orders.findOne({_id: _id})
+            console.log(getOrder)
+            getBuyerDetails = await Members.findOne({_id:getOrder.buyerId})
+            if(getOrder.sellerId === req.user.id){
+                const timeline = {
+                    "status" : " Order Confirmed",
+                    "dateOccured":  new Date()
+                }
+        const updateOrder = await Orders.updateOne({_id: _id}, { $addToSet: { timeLine: [timeline] } } );
 
+                if(updateOrder){
+        const postIsComplete = await Orders.findOneAndUpdate({ _id }, { isConfirmed: true });         
+          const emailFrom = 'Oyap   <noreply@oyap.com.ng>';
+         const subject = 'Order Confirmed';                      
+         const hostUrl = "oyap.netlify.app"
+         const hostUrl2 = "https://oyap.netlify.app" 
+         const username =  getBuyerDetails.firstName
+         const   text = "This order has been confirmed by the farmer" 
+       const emailTo = getBuyerDetails.email
+       const link = `${hostUrl}`;
+         const link2 = `${hostUrl2}`;
+         processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+
+         res.status(200).send({message:"Order confirmed succesfully"})
+
+        }else{
+            res.status(400).send({message:"Order not found "})
+        }
+
+    }else{
+        res.status(400).send({message:"Seller Id Invalid "})
+    }
+    }catch(err){
+        console.log(err)
+        res.status(500).send({message:"Error while confirming order "})
+    }
+
+};
 
 
 
@@ -178,100 +251,7 @@ async function processEmail(emailFrom, emailTo, subject, link, link2, text, fNam
 
 }
 
-exports.completedOrderByUserId = async (req, res) => {
-    try{
-      
-            let status = "Completed"
-            let userId = req.params.userId
-        const findOrder = await Orders.find({status: status, userId: userId} ).sort({ _id: "desc" })
-        
-        console.log(findOrder)
-        res.status(200).send(findOrder)
-    // }        
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting orders "})
-       }
-};
 
-exports.inCompletedOrderByUserId = async (req, res) => {
-    try{
-      
-            let status = "Pending"
-             let status1 = "Dispatched"
-              let userId = req.params.userId
-        const findOrder = await Orders.find({$or:[{status: status1, userId: userId},{status: status, userId: userId}]} ).sort({ _id: "desc" })
-   
-        console.log(findOrder)
-        res.status(200).send(findOrder)
-    // }        
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting orders "})
-       }
-};
-
-// dispatch order
-exports.dispatchOrder = async(req, res) => {
-    console.log(req.body)
-    const {   fullName, companyName  , phoneNumber,  orderId} = req.body;
-    
-    if (  fullName && companyName && phoneNumber &&  orderId ){
-        if ( fullName==="" || companyName==="" || phoneNumber==="" || orderId=== "" ){
-            res.status(400).send({
-                message:"Incorrect entry format"
-            });
-        }else{
-      // console.log(req.file)
-      // console.log( JSON.stringify( req.file.url ) ) 
-          
-            const dispatchs = new Dispatchs({
-                fullName: req.body.fullName,
-                companyName: req.body.companyName,
-                phoneNumber: req.body.phoneNumber,
-                orderId: req.body.orderId,
-                dispatcherId: req.body.dispatcherId   
-              });
-    
-         
-            try{
-            //    const emailFrom = 'Ahiajara Skin care    <noreply@Ahiajara.com>';
-            //       const subject = 'Dispatch alert';                      
-            //       const hostUrl = "ahiajara.netlify.app/dashboard"
-            //        const hostUrl2 = "https://ahiajara.netlify.app/dashboard" 
-            //     const admin = "Admin"
-            //       const   text = "An new order from "+req.user.firstName+" "+req.user.lastName+" has been placed, Login to the dashboard to view" 
-            //      const emailTo = 'tomiczilla@gmail.com'
-            //      const link = `${hostUrl}`;
-            //        const link2 = `${hostUrl2}`;
-            //        processEmail(emailFrom, emailTo, subject, link, link2, text, admin);
-              
-                 
-                  const makedispatch = await  dispatchs.save()
-                  console.log(makedispatch)
-                
-                    const _id = req.body.orderId;
-
-                const updateProduct = await Orders.findOneAndUpdate({ _id }, { status: 'Dispatched' });
-    
-                  console.log(updateProduct)
-
-                 res.status(201).send({message:"Order dispatched succesfully"})
-                
-         
-                       
-        
-            }catch(err){
-                console.log(err)
-                res.status(500).send({message:"Error while dispatching order "})
-            }
-        }
-    }else{
-        res.status(400).send({
-            message:"Incorrect entry format"
-        });
-    }
-    };
 
 async function PersistOneByOne(cartDetails, paymentResponse, billingDetails, shippingFee, totalAmountPaid, buyer){
     const orders = new Orders({      
