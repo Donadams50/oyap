@@ -1,15 +1,14 @@
 const db = require("../mongoose");
 const Orders = db.orders;
 const Members = db.profiles;
-const Products = db.products;
-const Dispatchs = db.dispatchs;
-const Notifications = db.notifications;
+const Carts = db.carts;
+
 
   const sendemail = require('../helpers/emailhelper.js');
 
 // Add new product to database
 exports.createOrder = async(req, res) => {
-  console.log(req.body)
+ 
   const {   cartItems, paymentResponse  , billingDetails, shippingFee, totalAmountPaid } = req.body;
   
   if ( cartItems&& paymentResponse  && billingDetails&& shippingFee&& totalAmountPaid  ){
@@ -26,8 +25,8 @@ exports.createOrder = async(req, res) => {
         
           }
      
-         
-  
+         const emptyUserCart = await Carts.remove({ buyerId: buyer.id }) 
+         console.log(emptyUserCart)
        
           try{
              
