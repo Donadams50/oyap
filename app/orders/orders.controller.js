@@ -25,7 +25,7 @@ exports.createOrder = async(req, res) => {
         
           }
      
-         const emptyUserCart = await Carts.remove({ buyerId: buyer.id }) 
+         const emptyUserCart = await Carts.remove({ userId: buyer.id }) 
          console.log(emptyUserCart)
        
           try{
