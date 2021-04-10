@@ -12,7 +12,7 @@ module.exports = mongoose => {
        isVerified: Boolean,
        isEnabled: Boolean, 
        walletBalance: Number,
-        pickUpDetails: String,
+        pickUpDetails: Object,
        billingDetails: Object,
        profilePic: String
       },

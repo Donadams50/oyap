@@ -37,7 +37,7 @@ exports.create = async(req,res)=>{
                     isVerified: false,
                     walletBalance: 0.00,
                     verificationCode: codeGenerated,
-                    pickUpDetails: '', 
+                    pickUpDetails: {}, 
                     billingDetails: {},
                     isEnabled: false,
                     forgotPasswordCodeStatus: false,
@@ -174,7 +174,7 @@ if ( email && password && role ){
                         const {  firstName,  role, lastName, phoneNumber , email, isVerified, isEnabled, walletBalance,createdAt } = User
                         const profilePic = User.profilePic || ""
                         const billingDetails = User.billingDetails || {}
-                        const pickUpDetails = User.pickUpDetails || ""
+                        const pickUpDetails = User.pickUpDetails || {}
                         const isMatch = await passwordUtils.comparePassword(password.toLowerCase(), retrievedPassword);
                         console.log(isMatch )
                         if (isMatch){
@@ -534,7 +534,7 @@ exports.updateMember = async(req, res) => {
                 isVerified: req.body.isVerified,
                 walletBalance: req.body.walletBalance ,
                 verificationCode: req.body.verificationCode || '',
-                pickUpDetails: req.body.pickUpDetails || '', 
+                pickUpDetails: req.body.pickUpDetails || {}, 
                 billingDetails: req.body.billingDetails || {},
                 isEnabled:  req.body.isEnabled,
                 forgotPasswordCodeStatus: req.body.forgotPasswordCodeStatus,
