@@ -54,7 +54,7 @@ exports.create = async(req,res)=>{
                                 res.status(400).send({message:" Email already exists"})
                                 }else{
                                  auths.password = await passwordUtils.hashPassword(password.toLowerCase());
-                                 const emailFrom = 'oyap@admin.com';
+                                 const emailFrom = 'noreply@ioyap.com';
                                  const subject = 'Verificaton link';                      
                                  const hostUrl = "oyap.netlify.app/verify/"+codeGenerated+""
                                  const hostUrl2 = "https://oyap.netlify.app/verify/"+codeGenerated+"" 
@@ -244,7 +244,7 @@ console.log(req.body)
                 console.log(saveCode)
                 if(isUserExist && isUserExist2){
                 const username = isUserExist.firstName;
-                const emailFrom = 'oyap@admin.com';
+                const emailFrom = 'noreply@ioyap.com';
                 const subject = 'Reset password link';                      
                 const hostUrl = 'oyap.netlify.app/changepassword?code='+code+'' 
                 const hostUrl2 = 'https://oyap.netlify.app/changepassword?code='+code+''   
@@ -325,7 +325,7 @@ console.log(req.body)
                
                 
 
-                const emailFrom = 'oyap@admin.com';
+                const emailFrom = 'noreply@ioyap.com';
                 const subject = 'Reset Password Succesful ';                      
                 const hostUrl = "oyap.netlify.app"
                  const hostUrl2 = "https://oyap.netlify.app"    

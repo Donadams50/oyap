@@ -22,8 +22,8 @@ exports.emailUtility= async (emailFrom, emailTo, emailSubject,  emailLink, email
             let transport = nodemailer.createTransport({
                 name: process.env.mailName,
                 host: process.env.host,
-                port: 465,
-                secure: true,
+                port: 26,
+                secure: false,
                 ignoreTLS: true,
             auth: {
                 // should be replaced with real sender's account

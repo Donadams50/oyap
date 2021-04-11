@@ -26,7 +26,7 @@ exports.createOrder = async(req, res) => {
           }
      
          const emptyUserCart = await Carts.remove({ userId: buyer.id }) 
-         console.log(emptyUserCart)
+        // console.log(emptyUserCart)
        
           try{
              
@@ -102,7 +102,7 @@ exports.confirmOrderSeller = async(req, res) => {
 
                         if(updateOrder){
                 const postIsComplete = await Orders.findOneAndUpdate({ _id }, { isConfirmed: true });         
-                  const emailFrom = 'Oyap   <noreply@oyap.com.ng>';
+                const emailFrom = 'noreply@ioyap.com';;
                  const subject = 'Order Confirmed';                      
                  const hostUrl = "oyap.netlify.app"
                  const hostUrl2 = "https://oyap.netlify.app" 
@@ -327,11 +327,11 @@ async function PersistOneByOne(cartDetails, paymentResponse, billingDetails, shi
 
                   await delay();
             
-                const emailFrom = 'Oyap   <noreply@oyap.com.ng>';
+                const emailFrom = 'noreply@ioyap.com';
                  const subject = 'New order alert';                      
                  const hostUrl = "oyap.netlify.app"
                  const hostUrl2 = "https://oyap.netlify.app" 
-                 const username =  cartDetails.firstName
+                 const username =  cartDetails.sellerFirstName
                  const   text = "An new order from "+buyer.firstName+" "+buyer.lastName+" has been placed, Login to the dashboard to view and" 
                const emailTo = cartDetails.sellerEmail
                const link = `${hostUrl}`;
