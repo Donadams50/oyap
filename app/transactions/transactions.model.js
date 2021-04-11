@@ -4,15 +4,11 @@ module.exports = mongoose => {
         status: String,
         buyerId: String,
         sellerId: String,
-        cartItem: Object,
-        paymentResponse: Object,
-        billingDetails: Object,
-        shippingFee: String,
-        totalAmountPaid: String,
-        subTotal : String,
-        timeLine : Array,
-        logisticId : String,
-        isConfirmed: Boolean
+        orderId: String,
+        amount: String,
+        type : String,
+        initialBalance : String,
+        finalBalance: String
       },
       { timestamps: true }
     );
@@ -23,7 +19,7 @@ module.exports = mongoose => {
       return object;
     });
   
-    const Order = mongoose.model("order", schema);
-    return Order;
+    const Transaction = mongoose.model("transaction", schema);
+    return Transaction;
   };
   

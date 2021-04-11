@@ -3,7 +3,8 @@ const Orders = db.orders;
 const Members = db.profiles;
 const Carts = db.carts;
 const Products = db.products;
-
+const Transactions = db.transactions;
+const mongoose = require("mongoose");
   const sendemail = require('../helpers/emailhelper.js');
 
 // Add new product to database
@@ -284,7 +285,76 @@ exports.confirmOrderLogistics = async(req, res) => {
 };
 
 
+// confirm order
+exports.confirmOrderLogistics = async(req, res) => {
+       
+    try{
+                  
+  
+              const _id = req.params.orderId;
+              const sess = await mongoose.startSession()
+                    sess.startTransaction()
+                  getOrder = await Orders.findOne({_id: _id})
+                                if(getOrder.status === "Pending"){
+                                console.log(getOrder)
+                                getSellerDetails = await Members.findOne({_id:getOrder.sellerId})
+                            
+                                    const timeline = {
+                                        "status" : "Order Delivered",
+                                        "dateOccured":  new Date()
+                                    }
+                                const updateOrder = await Orders.updateOne({_id: _id}, { $addToSet: { timeLine: [timeline] } } , { session: sess });
 
+                        
+                                const selId = getOrder.sellerId
+                                const postIsComplete = await Orders.findOneAndUpdate({ _id }, { status: 'Completed' }, { session: sess });   
+                                const postLogistics = await Orders.findOneAndUpdate({ _id }, { logisticId: req.user.id }, { session: sess });  
+                                const finalAmount = parseFloat(getSellerDetails.walletBalance) + parseFloat( getOrder.subTotal)
+                                    
+                                const transactions = new Transactions({      
+                                    status: "SUCCESSFUL",
+                                    buyerId: getOrder.buyerId,
+                                    sellerId: getOrder.sellerId,
+                                    orderId: req.params.orderId,
+                                    amount: getOrder.subTotal, 
+                                    type : "Credit",
+                                    initialBalance : parseFloat(getSellerDetails.walletBalance),
+                                    finalBalance: finalAmount
+                                });
+                    
+                                
+                                const posttransaction = await  transactions.save()
+                                const updateWallet = await Members.updateOne({ _id: selId}, { walletBalance: finalAmount });
+                                await sess.commitTransaction()
+                                sess.endSession();
+                                const emailFrom = 'noreply@ioyap.com';;
+                                const subject = 'Order Delivered';                      
+                                const hostUrl = "oyap.netlify.app"
+                                const hostUrl2 = "https://oyap.netlify.app" 
+                                const username =  getSellerDetails.firstName
+                                const   text = "This order has been delivered to the buyer and your wallet has been credited" 
+                                const emailTo = getSellerDetails.email
+                                const link = `${hostUrl}`;
+                                const link2 = `${hostUrl2}`;
+                                processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+  
+                                res.status(200).send({message:"Order confirmed succesfully"})
+
+                                
+                                
+                                
+
+                            }else{
+                                res.status(400).send({message:"This order is not a pending order "})
+                            }
+
+  
+                }catch(err){
+                    console.log(err)
+                    res.status(500).send({message:"Error while confirming order "})
+                }
+
+};
 async function processEmail(emailFrom, emailTo, subject, link, link2, text, fName){
   try{
       //create org details
@@ -311,6 +381,7 @@ async function PersistOneByOne(cartDetails, paymentResponse, billingDetails, shi
         billingDetails: billingDetails,
         shippingFee: shippingFee,
         totalAmountPaid:totalAmountPaid,
+        subTotal: cartDetails.subTotal,
         timeLine : [{
             status : "Payment Received",
             dateOccured:  new Date()

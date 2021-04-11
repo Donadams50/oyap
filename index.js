@@ -19,7 +19,8 @@ db.mongoose
   .connect(db.url, { 
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false 
+    useFindAndModify: false , 
+    retryWrites : false
   })
   .then(() => {
     console.log("Connected to the database!");
@@ -36,7 +37,7 @@ require("./app/products/products.routes.js")(app)
 require("./app/files/files.routes.js")(app)
 require("./app/cart/cart.routes.js")(app)
 require("./app/orders/orders.routes.js")(app)
-
+require("./app/transactions/transactions.routes.js")(app)
  app.get('/',  (req,res)=>{
     res.status(200).send({message:"Welcome to OYAP"})
          

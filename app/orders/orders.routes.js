@@ -13,6 +13,6 @@ module.exports = app => {
    app.get("/seller/order/:status",  verifyToken, isSeller,  order.findOrderByStatusSeller)
    app.get("/order/confirmed",  verifyToken,   order.getAllConfirmedOrder)
    app.get("/order/:orderId",  verifyToken,   order.findOrderById)
-   app.post("/confirm/order/logistics",  verifyToken, isLogistics , order.confirmOrderLogistics)
+   app.post("/logistics/confirm/order/:orderId",  verifyToken, isLogistics , order.confirmOrderLogistics)
   app.get("/dashboard/seller/count",  verifyToken, order.sellerDashboardCount)
 }
