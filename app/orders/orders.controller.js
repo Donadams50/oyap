@@ -95,7 +95,7 @@ exports.confirmOrderSeller = async(req, res) => {
                     console.log(getOrder)
                     getBuyerDetails = await Members.findOne({_id:getOrder.buyerId})
                     if(getOrder.sellerId === req.user.id){
-                        const timeline = {
+                      const timeline = {
                             "status" : " Order Confirmed",
                             "dateOccured":  new Date()
                         }
@@ -208,7 +208,7 @@ exports.findOrderByStatusBuyer = async (req, res) => {
         try{
             
            
-            const findOrderByStatus = await Orders.find({  isConfirmed : true, status : "Pending"}).sort({ _id: "desc" })
+            const findOrderByStatus = await Orders.find({  isConfirmed : true, status : "Pending", inTransit: false}).sort({ _id: "desc" })
            
            
             res.status(200).send(findOrderByStatus)
@@ -219,51 +219,7 @@ exports.findOrderByStatusBuyer = async (req, res) => {
            }
     };
     
-// confirm order
-exports.confirmOrderLogistics = async(req, res) => {
-       
-    try{
-                  
-  
-              const _id = req.params.orderId;
-            getOrder = await Orders.findOne({_id: _id})
-            console.log(getOrder)
-            getBuyerDetails = await Members.findOne({_id:getOrder.buyerId})
-            if(getOrder.sellerId === req.user.id){
-                const timeline = {
-                    "status" : " Order Confirmed",
-                    "dateOccured":  new Date()
-                }
-        const updateOrder = await Orders.updateOne({_id: _id}, { $addToSet: { timeLine: [timeline] } } );
 
-                if(updateOrder){
-        const postIsComplete = await Orders.findOneAndUpdate({ _id }, { isConfirmed: true });         
-          const emailFrom = 'Oyap   <noreply@oyap.com.ng>';
-         const subject = 'Order Confirmed';                      
-         const hostUrl = "oyap.netlify.app"
-         const hostUrl2 = "https://oyap.netlify.app" 
-         const username =  getBuyerDetails.firstName
-         const   text = "This order has been confirmed by the farmer" 
-       const emailTo = getBuyerDetails.email
-       const link = `${hostUrl}`;
-         const link2 = `${hostUrl2}`;
-         processEmail(emailFrom, emailTo, subject, link, link2, text, username);
-
-         res.status(200).send({message:"Order confirmed succesfully"})
-
-        }else{
-            res.status(400).send({message:"Order not found "})
-        }
-
-    }else{
-        res.status(400).send({message:"Seller Id Invalid "})
-    }
-    }catch(err){
-        console.log(err)
-        res.status(500).send({message:"Error while confirming order "})
-    }
-
-};
 
   // Count dashboard count 
   exports.sellerDashboardCount = async (req, res) => {
@@ -285,7 +241,7 @@ exports.confirmOrderLogistics = async(req, res) => {
 };
 
 
-// confirm order
+// confirm order delivered logistics
 exports.confirmOrderLogistics = async(req, res) => {
        
     try{
@@ -295,7 +251,8 @@ exports.confirmOrderLogistics = async(req, res) => {
               const sess = await mongoose.startSession()
                     sess.startTransaction()
                   getOrder = await Orders.findOne({_id: _id})
-                                if(getOrder.status === "Pending"){
+                               // if(getOrder.status === "Pending"  ){
+                                  if(getOrder.status === "Pending" && getOrder.logisticId === req.user.id && getOrder.isConfirmed === true && getOrder.inTransit === true ){
                                 console.log(getOrder)
                                 getSellerDetails = await Members.findOne({_id:getOrder.sellerId})
                             
@@ -319,7 +276,8 @@ exports.confirmOrderLogistics = async(req, res) => {
                                     amount: getOrder.subTotal, 
                                     type : "Credit",
                                     initialBalance : parseFloat(getSellerDetails.walletBalance),
-                                    finalBalance: finalAmount
+                                    finalBalance: finalAmount,
+                                    productDetails : getOrder
                                 });
                     
                                 
@@ -345,7 +303,7 @@ exports.confirmOrderLogistics = async(req, res) => {
                                 
 
                             }else{
-                                res.status(400).send({message:"This order is not a pending order "})
+                                res.status(400).send({message:"This order is not on transit or has not been confirmed by the seller"})
                             }
 
   
@@ -355,6 +313,58 @@ exports.confirmOrderLogistics = async(req, res) => {
                 }
 
 };
+
+
+// confirm order on transit
+exports.makeOrderOnTransit = async(req, res) => {
+       
+    try{
+                  
+  
+              const _id = req.params.orderId;
+              const sess = await mongoose.startSession()
+              sess.startTransaction()
+            getOrder = await Orders.findOne({_id: _id})
+           if(getOrder.status === "Pending" && getOrder.inTransit === false && getOrder.isConfirmed === true ){
+            getBuyerDetails = await Members.findOne({_id:getOrder.buyerId}, )
+            
+                const timeline = {
+                    "status" : " Order in transit",
+                    "dateOccured":  new Date()
+                }
+        const updateOrder = await Orders.updateOne({_id: _id}, { $addToSet: { timeLine: [timeline] } }, { session: sess } );
+        const postIsComplete = await Orders.findOneAndUpdate({ _id }, { inTransit: true },  { session: sess });  
+        const postLogistics = await Orders.findOneAndUpdate({ _id }, { logisticId: req.user.id }, { session: sess });  
+        await sess.commitTransaction()
+        sess.endSession();
+          const emailFrom = 'Oyap   <noreply@oyap.com.ng>';
+         const subject = 'Order in transit';                      
+         const hostUrl = "oyap.netlify.app"
+         const hostUrl2 = "https://oyap.netlify.app" 
+         const username =  getBuyerDetails.firstName
+         const   text = "Your order is on transit" 
+       const emailTo = getBuyerDetails.email
+       const link = `${hostUrl}`;
+         const link2 = `${hostUrl2}`;
+         processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+
+         res.status(200).send({message:"Order on transit"})
+            }else{
+                res.status(400).send({message:"This order is not in transit or has been completed"})
+            }
+        
+
+   
+    }catch(err){
+        console.log(err)
+        res.status(500).send({message:"Error while making order on transit "})
+    }
+
+};
+
+
+
+
 async function processEmail(emailFrom, emailTo, subject, link, link2, text, fName){
   try{
       //create org details
@@ -387,7 +397,8 @@ async function PersistOneByOne(cartDetails, paymentResponse, billingDetails, shi
             dateOccured:  new Date()
         }],
         logisticId : "",
-        isConfirmed : false
+        isConfirmed : false,
+        inTransit : false
       });
             
                 

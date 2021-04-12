@@ -8,7 +8,13 @@ module.exports = mongoose => {
         amount: String,
         type : String,
         initialBalance : String,
-        finalBalance: String
+        finalBalance: String,
+        productDetails : Object,
+        accountName: String,
+        accountNumber: String,
+        bankName : String,
+        charger: String
+
       },
       { timestamps: true }
     );

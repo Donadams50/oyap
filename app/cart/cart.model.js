@@ -21,7 +21,7 @@ module.exports = mongoose => {
         sellerLastName: String,
         sellerRegDate: Date,
         sellerEmail: String,
-        sellerpickUpDetails: String,
+        sellerpickUpDetails: Object,
         sellerProfilePic: String
         
       },

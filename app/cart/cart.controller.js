@@ -55,7 +55,7 @@ const logger = winston.createLogger({
                 sellerLastName: req.body.sellerLastName,
                 sellerRegDate: req.body.sellerRegDate,
                 sellerEmail: req.body.sellerEmail,
-                sellerpickUpDetails: req.body.seller,
+                sellerpickUpDetails: req.body.sellerpickUpDetails,
                 sellerProfilePic: req.body.sellerProfilePic
             
           

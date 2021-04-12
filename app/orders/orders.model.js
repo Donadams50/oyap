@@ -12,7 +12,8 @@ module.exports = mongoose => {
         subTotal : String,
         timeLine : Array,
         logisticId : String,
-        isConfirmed: Boolean
+        isConfirmed: Boolean,
+        inTransit : Boolean
       },
       { timestamps: true }
     );
