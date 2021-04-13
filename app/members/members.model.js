@@ -11,7 +11,7 @@ module.exports = mongoose => {
         verificationCode: String,
        isVerified: Boolean,
        isEnabled: Boolean, 
-       walletBalance: Number,
+       walletBalance: String,
         pickUpDetails: Object,
        billingDetails: Object,
        profilePic: String
@@ -20,15 +20,15 @@ module.exports = mongoose => {
       { timestamps: true }
     );
 
-    // Getter
-    schema.path('walletBalance').get(function(num) {
-     return (num / 100).toFixed(2);
-    });
+//     // Getter
+//     schema.path('walletBalance').get(function(num) {
+//      return (num / 100).toFixed(2);
+//     });
 
-// Setter
-   schema.path('walletBalance').set(function(num) {
-     return num * 100;
-  });
+// // Setter
+//    schema.path('walletBalance').set(function(num) {
+//      return num * 100;
+//   });
   
     schema.method("toJSON", function() {
       const { __v, _id, ...object } = this.toObject();

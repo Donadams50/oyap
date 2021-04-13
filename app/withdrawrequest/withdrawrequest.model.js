@@ -2,18 +2,11 @@ module.exports = mongoose => {
     var schema = mongoose.Schema(
       {
         status: String,
-        buyerId: String,
         sellerId: String,
-        orderId: String,
         amount: String,
-        type : String,
-        initialBalance : String,
-        finalBalance: String,
-        productDetails : Object,
         accountName: String,
         accountNumber: String,
         bankName : String,
-        charges: String
 
       },
       { timestamps: true }
@@ -24,8 +17,8 @@ module.exports = mongoose => {
       object.id = _id;
       return object;
     });
-  
-    const Transaction = mongoose.model("transaction", schema);
-    return Transaction;
+
+    const Withdrawrequest = mongoose.model("withdrawrequest", schema);
+    return Withdrawrequest;
   };
   

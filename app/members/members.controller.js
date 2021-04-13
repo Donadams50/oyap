@@ -2,7 +2,6 @@
 const db = require("../mongoose");
 const Members = db.profiles;
 const Auths = db.auths;
-const Offices = db.offices;
 const passwordUtils =require('../helpers/passwordUtils');
 const jwtTokenUtils = require('../helpers/jwtTokenUtils.js');
 const sendemail = require('../helpers/emailhelper.js');

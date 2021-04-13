@@ -281,7 +281,7 @@ exports.confirmOrderLogistics = async(req, res) => {
                                 });
                     
                                 
-                                const posttransaction = await  transactions.save()
+                                const posttransaction = await  transactions.save({ session: sess })
                                 const updateWallet = await Members.updateOne({ _id: selId}, { walletBalance: finalAmount });
                                 await sess.commitTransaction()
                                 sess.endSession();

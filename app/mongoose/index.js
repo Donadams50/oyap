@@ -15,4 +15,6 @@ db.producttypes = require("../products/product.type.model.js")(mongoose);
 db.carts = require("../cart/cart.model.js")(mongoose);
 db.orders = require("../orders/orders.model.js")(mongoose);
 db.transactions = require("../transactions/transactions.model.js")(mongoose);
+db.withdrawrequests = require("../withdrawrequest/withdrawrequest.model.js")(mongoose);
+
 module.exports = db;
