@@ -62,7 +62,7 @@ exports.withdrawFunds = async(req, res) => {
               const transAmount = parseFloat(amount)
 
               const withdrawrequest = new Withdrawrequest({      
-                status: "Pending",
+                status: "PENDING",
                 sellerId: req.user.id,
                 bankName: bankName,
                 accountName: accountName,
@@ -72,8 +72,8 @@ exports.withdrawFunds = async(req, res) => {
               });     
               
               const transactions = new Transactions({      
-                status: "Pending",
-                sellerId: req.userid,              
+                status: "PENDING",
+                sellerId: req.userid.id,              
                 amount: amount, 
                 type : "Debit",
                 initialBalance : walletBalance,
