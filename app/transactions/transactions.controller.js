@@ -89,7 +89,7 @@ exports.withdrawFunds = async(req, res) => {
                     sess.startTransaction()
                     
                      
-                  if(walletBalance >= transAmount || transAmount > mimimumWithdrawer){
+                  if(walletBalance >= transAmount && transAmount > mimimumWithdrawer){
                             
                             const _id = req.user.id
                             const saveTransaction = await  transactions.save({ session: sess })
