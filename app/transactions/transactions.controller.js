@@ -73,7 +73,7 @@ exports.withdrawFunds = async(req, res) => {
               
               const transactions = new Transactions({      
                 status: "PENDING",
-                sellerId: req.userid.id,              
+                sellerId: req.user.id,              
                 amount: amount, 
                 type : "Debit",
                 initialBalance : walletBalance,
