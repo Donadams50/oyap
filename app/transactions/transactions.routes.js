@@ -6,7 +6,6 @@ module.exports = app => {
     const upload = require('../cloudinary/multer.js');
  
         
-   app.post("/withdraw",  verifyToken, isSeller,  transaction.withdrawFunds)
    app.get("/transactions/seller",  verifyToken,  isSeller, transaction.getTransactionHistory)
   
 }

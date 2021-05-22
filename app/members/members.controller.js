@@ -20,13 +20,34 @@ exports.create = async(req,res)=>{
     const codeGenerated =  getCode();
     const { firstName,role,lastName,email,password,phoneNumber  } = req.body;
   
-    if ( firstName && role  && role && lastName && email && password && phoneNumber ){
+    if ( firstName && role  && lastName && email && password && phoneNumber ){
           if ( firstName==="" ||  role==="" || lastName==="" || password===""  || email==="" || phoneNumber===  ""  ){
                 res.status(400).send({
                     message:"Incorrect entry format"
                 });
-           }else{   
-                const members = new Members({
+           }else{  
+               
+            if (role === "Admin" || req.user.role === "Buyer" ) {
+              
+                 members = new Members({
+                    firstName: req.body.firstName,
+                    role: req.body.role,
+                    lastName: req.body.lastName,
+                    phoneNumber:req.body.phoneNumber || '',
+                    email: req.body.email,
+                    forgotPasswordCode: '',
+                    isVerified: false,
+                    walletBalance: 0.00,
+                    verificationCode: codeGenerated,
+                    pickUpDetails: {}, 
+                    billingDetails: {},
+                    isEnabled: true,
+                    forgotPasswordCodeStatus: false,
+                    profilePic : ""
+                    
+                    });
+               }else if (role === "Seller" || req.user.role === "Logistics" ){
+                 members = new Members({
                     firstName: req.body.firstName,
                     role: req.body.role,
                     lastName: req.body.lastName,
@@ -43,6 +64,9 @@ exports.create = async(req,res)=>{
                     profilePic : ""
                     
                     });
+                 
+               }
+                
                   const auths = new Auths({ 
                     email: req.body.email               
                 });
@@ -304,11 +328,11 @@ console.log(req.body)
               const getuser = await Members.findOne({forgotPasswordCode: req.body.code} )
               
               if(getuser){
-                console.log(getuser)
+              //  console.log(getuser)
               const temporaryPassword = req.body.password
                
                 const newpassword = await passwordUtils.hashPassword(temporaryPassword);
-                console.log(newpassword)
+               // console.log(newpassword)
                 
                 const getAuth = await Auths.findOne({email: getuser.email} )
                // const getAuth = await Auths.findOne({email: getuser.email} )
@@ -659,12 +683,6 @@ exports.deleteMember = async (req, res) => {
        }
 }
 
-
-
-
-
-
-
 // count all user
  exports.countUsers = async (req, res) => {
     try{
@@ -677,14 +695,6 @@ exports.deleteMember = async (req, res) => {
            res.status(500).send({message:"Error while counting users "})
        }
 };
-
-
-
-
-
-
-
-
 
 
 // user change password
@@ -741,6 +751,96 @@ console.log(req.body)
         });
     }
 }
+
+
+ //find new order
+ exports.recentUsersAdmin = async (req, res) => {
+    try{
+        const limit =  parseInt(req.query.limit);
+
+        let limitDefault = 5
+     
+        if(limit){
+            const findRecentUsers = await Members.find().sort({ _id: "desc" })
+            .limit(limit)
+              if(findRecentUsers){
+                res.status(200).send(findRecentUsers)
+              }else{
+                res.status(400).send({message:"No new order to fetch"})
+              }
+
+        }else{
+         
+            const findRecentUsers = await Members.find().sort({ _id: "desc" })
+            .limit(limitDefault)
+         
+        if(findRecentUsers){
+            res.status(200).send(findRecentUsers)
+          }else{
+            res.status(400).send({message:"No new order to fetch "})
+          }
+         }
+        
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting orders "})
+       }
+};
+
+// Count user dashboard admin 
+exports.adminUserDashboardCount = async (req, res) => {
+    try{
+      
+        const countAdmin = await Members.countDocuments({  role : "SubAdmin"})
+        const countBuyer = await Members.countDocuments({ role : "Buyer"})
+        const countSeller = await Members.countDocuments({ role : "Seller"})
+        const countLogistics = await Members.countDocuments({ role : "Logistics"})
+       
+          res.status(200).send({countAdmin:countAdmin,countBuyer:countBuyer,countSeller:countSeller, countLogistics: countLogistics})
+     }catch(err){ 
+           console.log(err)
+           res.status(500).send({message:"Error while getting admin dashboard details "})
+       }
+};
+
+
+
+// Find all members
+exports.findAllMembers = async (req, res) => {
+    try{
+        
+        const{ limit}= req.query
+        const{ role}= req.query
+      
+        if(role){
+        if(limit){
+            const findAllMembers = await Members.find({role: role}).sort({"_id": -1}).limit(lim)
+         //   console.log(findAllMembers)
+        res.status(200).send(findAllMembers)
+         }else{
+            const findAllMembers = await Members.find({role: role}).sort({"_id": -1})    
+         //  console.log(findAllMembers)
+        res.status(200).send(findAllMembers)
+         } 
+        
+        }else{
+            if(limit){
+                const findAllMembers = await Members.find().sort({"_id": -1}).limit(lim)
+             //   console.log(findAllMembers)
+            res.status(200).send(findAllMembers)
+             }else{
+                const findAllMembers = await Members.find().sort({"_id": -1})    
+             //  console.log(findAllMembers)
+            res.status(200).send(findAllMembers)
+             } 
+        }
+ 
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting all users "})
+       }
+};
+
 
 
 // process email one

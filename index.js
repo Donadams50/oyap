@@ -38,7 +38,7 @@ require("./app/files/files.routes.js")(app)
 require("./app/cart/cart.routes.js")(app)
 require("./app/orders/orders.routes.js")(app)
 require("./app/transactions/transactions.routes.js")(app)
-//require("./app/withdrawrequest/withdrawrequest.routes.js")(app)
+require("./app/withdrawrequest/withdrawrequest.routes.js")(app)
 
  app.get('/',  (req,res)=>{
     res.status(200).send({message:"Welcome to OYAP"})

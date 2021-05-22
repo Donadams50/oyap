@@ -1,6 +1,7 @@
 const db = require("../mongoose");
 const Orders = db.orders;
 const Members = db.profiles;
+const Withdrawrequest = db.withdrawrequests
 const Carts = db.carts;
 const Products = db.products;
 const Transactions = db.transactions;
@@ -363,6 +364,57 @@ exports.makeOrderOnTransit = async(req, res) => {
 };
 
 
+ // Count order dashboard admin 
+ exports.adminOrderDashboardCount = async (req, res) => {
+    try{
+      
+        const countPendingOrder = await Orders.countDocuments({  status : "Pending", isConfirmed : false})
+        const countCompletedOrder = await Orders.countDocuments({ status : "Completed", isConfirmed : true})
+        const countPendingDelivery = await Orders.countDocuments({ status : "Pending", isConfirmed : true,})
+        const countPendingPayment = await Withdrawrequest.countDocuments({ status : "PENDING"})
+       
+          res.status(200).send({countPendingOrder:countPendingOrder,countCompletedOrder:countCompletedOrder,countPendingDelivery:countPendingDelivery, countPendingPayment: countPendingPayment})
+     }catch(err){ 
+           console.log(err)
+           res.status(500).send({message:"Error while getting admin dashboard details "})
+       }
+};
+
+ //find new order
+ exports.recentOrdersAdmin = async (req, res) => {
+    try{
+        const limit =  parseInt(req.query.limit);
+
+        let limitDefault = 5
+     
+        if(limit){
+            const findRecentOrder = await Orders.find({status: "Pending", isConfirmed : false }).sort({ _id: "desc" })
+            .limit(limit)
+              if(findRecentOrder){
+                res.status(200).send(findRecentOrder)
+              }else{
+                res.status(400).send({message:"No new order to fetch"})
+              }
+
+        }else{
+         
+            const findRecentOrder = await Orders.find({status: "Pending", isConfirmed : false }).sort({ _id: "desc" })
+            .limit(limitDefault)
+         
+        if(findRecentOrder){
+            res.status(200).send(findRecentOrder)
+          }else{
+            res.status(400).send({message:"No new order to fetch "})
+          }
+         }
+        
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting orders "})
+       }
+};
+
+
 
 
 async function processEmail(emailFrom, emailTo, subject, link, link2, text, fName){
@@ -378,8 +430,6 @@ async function processEmail(emailFrom, emailTo, subject, link, link2, text, fNam
   }
 
 }
-
-
 
 async function PersistOneByOne(cartDetails, paymentResponse, billingDetails, shippingFee, totalAmountPaid, buyer){
     const orders = new Orders({      

@@ -1,7 +1,7 @@
 module.exports = app => {
     const order = require("./orders.controller");
     const jwtTokenUtils = require('../helpers/jwtTokenUtils')
-    const { verifyToken,  isSeller, isBuyer, isLogistics, isAdmin } = jwtTokenUtils;
+    const { verifyToken,  isSeller, isBuyer, isLogistics, isAdmin, isAdminOrSubadmin } = jwtTokenUtils;
     require('../cloudinary/cloudinary.js')
     const upload = require('../cloudinary/multer.js');
  
@@ -16,4 +16,6 @@ module.exports = app => {
    app.post("/logistics/confirm/order/:orderId",  verifyToken, isLogistics , order.confirmOrderLogistics)
    app.get("/dashboard/seller/count",  verifyToken, order.sellerDashboardCount)
    app.post("/ontransit/order/:orderId",  verifyToken, isLogistics , order.makeOrderOnTransit)
+   app.get("/admin/orders/dashboard/count",  verifyToken,  isAdminOrSubadmin, order.adminOrderDashboardCount)
+   app.get("/recentorders/admin",verifyToken, isAdminOrSubadmin, order.recentOrdersAdmin)
 }

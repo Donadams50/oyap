@@ -21,9 +21,16 @@ exports.signToken= (id, firstName,  role, lastName, phoneNumber , email, isVerif
           console.log(error)
           res.status(401).json({ status: 401, error: 'Unauthorized' });
         }else{
-         console.log(decoded)
-           req.user = decoded;
+
+           // console.log(decoded)
+        if (decoded.isEnabled === false) {
+          console.log("User has been disabled")
+          res.status(401).json({ status: 401, error: 'User disabled, Contact the admin to enable your account' });
+        }else{
+          req.user = decoded;
           next();
+        }
+       
         }
        
       });
@@ -46,6 +53,22 @@ exports.signToken= (id, firstName,  role, lastName, phoneNumber , email, isVerif
         }
     
   }
+   
+  exports.isAdminOrSubadmin= (req, res, next)=> { 
+  
+  
+    if (req.user.role === "Admin" || req.user.role === "SubAdmin") {
+     console.log(req.user.role) 
+      next();
+      
+    }else{
+      console.log(req.user.role) 
+      res.status(401).json({ status: 401, error: 'Unauthorized to access this resource' });
+      
+    }
+
+}
+ 
 
   
   exports.isSeller= (req, res, next)=> { 
