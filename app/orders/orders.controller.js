@@ -417,6 +417,225 @@ exports.makeOrderOnTransit = async(req, res) => {
 
 
 
+ // Count dashboard count 
+ exports.getUserDashboardCountByAdmin = async (req, res) => {
+    try{
+      
+
+             let userId = req.params.userId
+             const findMemberById = await Members.findOne({_id: userId})
+
+            if(findMemberById){
+
+
+
+                if(findMemberById.role === "Seller"){
+                    const countConfirmedOrder = await Orders.countDocuments({ sellerId:userId, isConfirmed : true, status : "Pending"})
+                    const countCompletedOrder = await Orders.countDocuments({sellerId:userId, isConfirmed : true, status : "Completed"})
+                    const countNewOrder = await Orders.countDocuments({sellerId:userId, isConfirmed : false, status : "Pending"})
+                    const countAllProductSeller = await Products.countDocuments({sellerId:userId})
+                    res.status(200).send({countConfirmedOrder:countConfirmedOrder,countCompletedOrder:countCompletedOrder,countNewOrder:countNewOrder, countAllProductSeller: countAllProductSeller})
+
+
+                }else if(findMemberById.role === "Buyer"){
+                    const countConfirmedOrder = await Orders.countDocuments({ buyerId:userId, isConfirmed : true, status : "Pending"})
+                    const countCompletedOrder = await Orders.countDocuments({buyerId:userId, isConfirmed : true, status : "Completed"})
+                    const countNewOrder = await Orders.countDocuments({buyerId:userId, isConfirmed : false, status : "Pending"})
+                    res.status(200).send({countConfirmedOrder:countConfirmedOrder,countCompletedOrder:countCompletedOrder,countNewOrder:countNewOrder})
+
+                }else if(findMemberById.role === "Logistics"){
+                    const countConfirmedOrder = await Orders.countDocuments({ logisticId:userId, isConfirmed : true, status : "Pending"})
+                    const countCompletedOrder = await Orders.countDocuments({logisticId:userId, isConfirmed : true, status : "Completed"})
+                    res.status(200).send({countConfirmedOrder:countConfirmedOrder,countCompletedOrder:countCompletedOrder})
+
+                }
+
+                
+        
+
+            }else{
+                res.status(400).send({message:"Invalid user id"})
+            }
+            }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while counting orders "})
+       }
+};
+
+
+
+   // get orders of a particular seller by admin
+   exports.getUserOrdersByAdmin = async (req, res) => {
+    try{
+        const resultsPerPage =  parseInt(req.query.limit);
+        const offset1 = parseInt(req.query.offset);
+        let status = req.query.status
+
+
+        let userId = req.params.userId
+        const findMemberById = await Members.findOne({_id: userId})
+        console.log("err")
+       if(findMemberById){
+        if(findMemberById.role === "Seller"){
+            
+            if(status === "Confirmed"){
+                stat = "Pending"
+              if(offset1 === 1){ 
+                  const findOrderByStatus = await Orders.find({ sellerId:userId, isConfirmed : true, status : stat}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                      res.status(200).send(findOrderByStatus)
+              }else{
+                  const page = offset1 -1;
+                  const findOrderByStatus = await Orders.find({ sellerId:userId, isConfirmed : true, status : stat}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                  .skip(resultsPerPage * page)
+              
+                  res.status(200).send(findOrderByStatus)      
+               }  
+           }else if(status === "Pending"){
+              if(offset1 === 1){
+                  const findOrderByStatus = await Orders.find({ sellerId:userId, isConfirmed : false, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                      res.status(200).send(findOrderByStatus)
+              }else{
+                  const page = offset1 -1;
+                  const findOrderByStatus = await Orders.find({ sellerId:userId, isConfirmed : false, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                  .skip(resultsPerPage * page)
+              
+                  res.status(200).send(findOrderByStatus)      
+               } 
+           }else if(status === "Completed"){
+              if(offset1 === 1){
+                  const findOrderByStatus = await Orders.find({ sellerId:userId, isConfirmed : true, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                      res.status(200).send(findOrderByStatus)
+              }else{
+                  const page = offset1 -1;
+                  const findOrderByStatus = await Orders.find({ sellerId:userId, isConfirmed : true, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                  .skip(resultsPerPage * page)
+              
+                  res.status(200).send(findOrderByStatus)      
+               } 
+          }
+
+
+        }else if(findMemberById.role === "Buyer"){
+            if(status === "Confirmed"){
+                stat = "Pending"
+              if(offset1 === 1){ 
+                  const findOrderByStatus = await Orders.find({ buyerId:userId, isConfirmed : true, status : stat}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                      res.status(200).send(findOrderByStatus)
+              }else{
+                  const page = offset1 -1;
+                  const findOrderByStatus = await Orders.find({ buyerId:userId, isConfirmed : true, status : stat}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                  .skip(resultsPerPage * page)
+              
+                  res.status(200).send(findOrderByStatus)      
+               }  
+           }else if(status === "Pending"){
+              if(offset1 === 1){
+                  const findOrderByStatus = await Orders.find({ buyerId:userId, isConfirmed : false, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                      res.status(200).send(findOrderByStatus)
+              }else{
+                  const page = offset1 -1;
+                  const findOrderByStatus = await Orders.find({ buyerId:userId, isConfirmed : false, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                  .skip(resultsPerPage * page)
+              
+                  res.status(200).send(findOrderByStatus)      
+               } 
+           }else if(status === "Completed"){
+              if(offset1 === 1){
+                  const findOrderByStatus = await Orders.find({ buyerId:userId, isConfirmed : true, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                      res.status(200).send(findOrderByStatus)
+              }else{
+                  const page = offset1 -1;
+                  const findOrderByStatus = await Orders.find({ buyerId:userId, isConfirmed : true, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                  .skip(resultsPerPage * page)
+              
+                  res.status(200).send(findOrderByStatus)      
+               } 
+          }
+
+        }else if(findMemberById.role === "Logistics"){
+            if(status === "Confirmed"){
+                stat = "Pending"
+              if(offset1 === 1){ 
+                  const findOrderByStatus = await Orders.find({ logisticId:userId, isConfirmed : true, status : stat}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                      res.status(200).send(findOrderByStatus)
+              }else{
+                  const page = offset1 -1;
+                  const findOrderByStatus = await Orders.find({ logisticId:userId, isConfirmed : true, status : stat}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                  .skip(resultsPerPage * page)
+              
+                  res.status(200).send(findOrderByStatus)      
+               }  
+           }else if(status === "Pending"){
+              if(offset1 === 1){
+                  const findOrderByStatus = await Orders.find({ logisticId:userId, isConfirmed : false, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                      res.status(200).send(findOrderByStatus)
+              }else{
+                  const page = offset1 -1;
+                  const findOrderByStatus = await Orders.find({ logisticId:userId, isConfirmed : false, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                  .skip(resultsPerPage * page)
+              
+                  res.status(200).send(findOrderByStatus)      
+               } 
+           }else if(status === "Completed"){
+              if(offset1 === 1){
+                  const findOrderByStatus = await Orders.find({ logisticId:userId, isConfirmed : true, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                      res.status(200).send(findOrderByStatus)
+              }else{
+                  const page = offset1 -1;
+                  const findOrderByStatus = await Orders.find({ logisticId:userId, isConfirmed : true, status : status}).sort({ _id: "desc" })
+                  .limit(resultsPerPage)
+                  .skip(resultsPerPage * page)
+              
+                  res.status(200).send(findOrderByStatus)      
+               } 
+          }
+
+        }
+
+
+
+       }else{
+        res.status(400).send({message:"Invalid user id"})
+       }
+         
+
+         
+           
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting orders "})
+       }
+};
+
+
+
+
+
+
+
+
+
+
+
+ 
+
 async function processEmail(emailFrom, emailTo, subject, link, link2, text, fName){
   try{
       //create org details

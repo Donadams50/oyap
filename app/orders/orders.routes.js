@@ -18,4 +18,7 @@ module.exports = app => {
    app.post("/ontransit/order/:orderId",  verifyToken, isLogistics , order.makeOrderOnTransit)
    app.get("/admin/orders/dashboard/count",  verifyToken,  isAdminOrSubadmin, order.adminOrderDashboardCount)
    app.get("/recentorders/admin",verifyToken, isAdminOrSubadmin, order.recentOrdersAdmin)
+   app.get("/admin/user/dashboard/count/:userId",  verifyToken,  isAdminOrSubadmin, order.getUserDashboardCountByAdmin)
+   app.get("/admin/user/orders/:userId",  verifyToken,  isAdminOrSubadmin, order.getUserOrdersByAdmin)
+
 }
