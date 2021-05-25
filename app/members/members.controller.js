@@ -761,7 +761,8 @@ console.log(req.body)
         let limitDefault = 5
      
         if(limit){
-            const findRecentUsers = await Members.find().sort({ _id: "desc" })
+            const findRecentUsers = await Members.find({$or:[{role: "Seller"},{role: "Logistics"},{role:"Buyer"}]}).sort({ _id: "desc" })
+
             .limit(limit)
               if(findRecentUsers){
                 res.status(200).send(findRecentUsers)
