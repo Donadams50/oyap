@@ -20,5 +20,8 @@ module.exports = app => {
    app.get("/recentorders/admin",verifyToken, isAdminOrSubadmin, order.recentOrdersAdmin)
    app.get("/admin/user/dashboard/count/:userId",  verifyToken,  isAdminOrSubadmin, order.getUserDashboardCountByAdmin)
    app.get("/admin/user/orders/:userId",  verifyToken,  isAdminOrSubadmin, order.getUserOrdersByAdmin)
+   app.put("/cancel/orders/:orderId",  verifyToken,    isAdminOrSubadmin,  order.cancelOrder)
+   app.get("/allorders",verifyToken, isAdminOrSubadmin, order.getAllOrders)
+
 
 }

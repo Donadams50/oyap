@@ -9,10 +9,10 @@ const Producttypes = db.producttypes;
 exports.create = async(req, res) => {
   console.log(req.body)
   // let {myrefCode} = req.query;
-  const {   productName, productType  , productCategory , productPrice, productQuantity, productDescription, productInStock, productImages } = req.body;
+  const {   productName, productType  , productCategory , productPrice, productQuantity, productDescription, productInStock, productImages , isLogistics, productWeight} = req.body;
   
-  if ( productName && productType && productCategory && productPrice && productQuantity && productDescription && productInStock &&productImages){
-      if ( productName==="" || productType==="" || productCategory==="" || productPrice==="" || productQuantity=== "" || productDescription ==="" || productInStock ==="" || productImages.length < 1 ){
+  if ( productName && productType && productCategory && productPrice && productQuantity && productDescription && productInStock &&productImages && productWeight && isLogistics ){
+      if ( productName==="" || productType==="" || productCategory==="" || productPrice==="" || productQuantity=== "" || productDescription ==="" || productInStock ==="" || productImages.length < 1 || productWeight === "" ){
           res.status(400).send({
               message:"Incorrect entry format"
           });
@@ -34,7 +34,9 @@ exports.create = async(req, res) => {
             sellerLastName: req.user.lastName,
             sellerEmail: req.user.email,
             sellerRegDate : req.user.createdAt,
-            sellerProfilePic: req.user.profilePic
+            sellerProfilePic: req.user.profilePic,
+            productWeight : productWeight,
+            isLogistics : isLogistics
 
        
             });
@@ -133,6 +135,8 @@ exports.updateProduct = async(req, res) => {
         sellerfirstName: req.user.firstName,
         sellerlastName: req.user.lastName,
         sellerEmail: req.user.email,
+        isLogistics : isLogistics,
+        productWeight : productWeight
    
       });
    

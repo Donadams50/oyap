@@ -131,7 +131,64 @@ exports.confirmOrderSeller = async(req, res) => {
      
     };
 
-    // get orders by a particular seller
+//cancel order
+
+exports.cancelOrder = async(req, res) => {
+       
+    try{
+        const sess = await mongoose.startSession()
+        sess.startTransaction()
+              const reason = req.body.reason
+              const _id = req.params.orderId;
+            getOrder = await Orders.findOne({_id: _id})
+            console.log(getOrder)
+            getBuyerDetails = await Members.findOne({_id:getOrder.buyerId})
+            if(getOrder.status === "Completed" ){
+                res.status(400).send({message:"This order cannot be cancelled, it has been confirmed already"})
+
+                }else{
+                    
+
+                    const timeline = {
+                        "status" : " Order Cancelled",
+                        "dateOccured":  new Date()
+                    }
+            const updateOrder = await Orders.updateOne({_id: _id}, { $addToSet: { timeLine: [timeline] } }, { session: sess } );
+
+              if(updateOrder){
+                const updatecancellationReason= await Orders.findOneAndUpdate({ _id }, { cancellationReason: reason }, { session: sess });    
+                const updateIsCancelledStatus = await Orders.findOneAndUpdate({ _id }, { isCancelled: true }, { session: sess });     
+                const updateIsStatus = await Orders.findOneAndUpdate({ _id }, { status: "Cancelled" }, { session: sess }); 
+
+                await sess.commitTransaction()
+                    sess.endSession();
+                const emailFrom = 'noreply@ioyap.com';;
+                const subject = 'Order Cancelled';                      
+                const hostUrl = "oyap.netlify.app"
+                const hostUrl2 = "https://oyap.netlify.app" 
+                const username =  getBuyerDetails.firstName
+                const   text = "This order has been cancelled  by the Administrator, contact the admin for refund" 
+                const emailTo = getBuyerDetails.email
+                const link = `${hostUrl}`;
+                const link2 = `${hostUrl2}`;
+                processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+
+                res.status(200).send({message:"Order cancelled succesfully"})
+
+            }else{
+                res.status(400).send({message:"Order not found "})
+            }
+
+    }
+    }catch(err){
+        console.log(err)
+        res.status(500).send({message:"Error while cancelling order "})
+    }
+
+};
+
+
+// get orders by a particular seller
 exports.findOrderByStatusBuyer = async (req, res) => {
         try{
             
@@ -159,7 +216,7 @@ exports.findOrderByStatusBuyer = async (req, res) => {
            }
     };
 
-    // get orders by a particular seller
+// get orders by a particular seller
  exports.findOrderByStatusSeller = async (req, res) => {
         try{
             const resultsPerPage =  parseInt(req.query.limit);
@@ -190,6 +247,7 @@ exports.findOrderByStatusBuyer = async (req, res) => {
            }
     };
 
+// find order by id
  exports.findOrderById = async (req, res) => {
         try{
             
@@ -204,7 +262,7 @@ exports.findOrderByStatusBuyer = async (req, res) => {
            }
     };
 
-    
+// find all confirmed id  
  exports.getAllConfirmedOrder = async (req, res) => {
         try{
             
@@ -220,9 +278,7 @@ exports.findOrderByStatusBuyer = async (req, res) => {
            }
     };
     
-
-
-  // Count dashboard count 
+// Count dashboard count 
   exports.sellerDashboardCount = async (req, res) => {
     try{
       
@@ -372,8 +428,9 @@ exports.makeOrderOnTransit = async(req, res) => {
         const countCompletedOrder = await Orders.countDocuments({ status : "Completed", isConfirmed : true})
         const countPendingDelivery = await Orders.countDocuments({ status : "Pending", isConfirmed : true,})
         const countPendingPayment = await Withdrawrequest.countDocuments({ status : "PENDING"})
+        const countCancelledOrder = await Orders.countDocuments({ status : "Cancelled"})
        
-          res.status(200).send({countPendingOrder:countPendingOrder,countCompletedOrder:countCompletedOrder,countPendingDelivery:countPendingDelivery, countPendingPayment: countPendingPayment})
+          res.status(200).send({countPendingOrder:countPendingOrder,countCompletedOrder:countCompletedOrder,countPendingDelivery:countPendingDelivery, countPendingPayment: countPendingPayment, countCancelledOrder: countCancelledOrder})
      }catch(err){ 
            console.log(err)
            res.status(500).send({message:"Error while getting admin dashboard details "})
@@ -414,6 +471,81 @@ exports.makeOrderOnTransit = async(req, res) => {
        }
 };
 
+
+
+ //find new order
+ exports.getAllOrders = async (req, res) => {
+    try{
+        const resultsPerPage =  parseInt(req.query.limit);
+        const offset1 = parseInt(req.query.offset);
+        let status = req.query.status
+
+
+        if(status === "Confirmed"){
+            stat = "Pending"
+          if(offset1 === 1){ 
+              const findOrderByStatus = await Orders.find({  isConfirmed : true, status : stat}).sort({ _id: "desc" })
+              .limit(resultsPerPage)
+                  res.status(200).send(findOrderByStatus)
+          }else{
+              const page = offset1 -1;
+              const findOrderByStatus = await Orders.find({  isConfirmed : true, status : stat}).sort({ _id: "desc" })
+              .limit(resultsPerPage)
+              .skip(resultsPerPage * page)
+          
+              res.status(200).send(findOrderByStatus)      
+           }  
+       }else if(status === "Pending"){
+          if(offset1 === 1){
+              const findOrderByStatus = await Orders.find({ isConfirmed : false, status : status}).sort({ _id: "desc" })
+              .limit(resultsPerPage)
+                  res.status(200).send(findOrderByStatus)
+          }else{
+              const page = offset1 -1;
+              const findOrderByStatus = await Orders.find({ isConfirmed : false, status : status}).sort({ _id: "desc" })
+              .limit(resultsPerPage)
+              .skip(resultsPerPage * page)
+          
+              res.status(200).send(findOrderByStatus)      
+           } 
+       }else if(status === "Completed"){
+          if(offset1 === 1){
+              const findOrderByStatus = await Orders.find({ isConfirmed : true, status : status}).sort({ _id: "desc" })
+              .limit(resultsPerPage)
+                  res.status(200).send(findOrderByStatus)
+          }else{
+              const page = offset1 -1;
+              const findOrderByStatus = await Orders.find({ isConfirmed : true, status : status}).sort({ _id: "desc" })
+              .limit(resultsPerPage)
+              .skip(resultsPerPage * page)
+          
+              res.status(200).send(findOrderByStatus)      
+           } 
+       }else if(status === "Cancelled"){
+        if(offset1 === 1){
+            const findOrderByStatus = await Orders.find({ isCancelled : true, status : status}).sort({ _id: "desc" })
+            .limit(resultsPerPage)
+                res.status(200).send(findOrderByStatus)
+        }else{
+            const page = offset1 -1;
+            const findOrderByStatus = await Orders.find({ isCancelled : true, status : status}).sort({ _id: "desc" })
+            .limit(resultsPerPage)
+            .skip(resultsPerPage * page)
+        
+            res.status(200).send(findOrderByStatus)      
+         } 
+     }
+     
+       
+         
+       
+         
+        
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting orders "})
+       }
+};
 
 
 
@@ -518,7 +650,7 @@ exports.makeOrderOnTransit = async(req, res) => {
               
                   res.status(200).send(findOrderByStatus)      
                } 
-          }
+           }
 
 
         }else if(findMemberById.role === "Buyer"){
@@ -667,7 +799,10 @@ async function PersistOneByOne(cartDetails, paymentResponse, billingDetails, shi
         }],
         logisticId : "",
         isConfirmed : false,
-        inTransit : false
+        inTransit : false,
+        cancellationReason: "",
+        isCancelled: false
+        
       });
             
                 

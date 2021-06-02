@@ -16,7 +16,9 @@ module.exports = mongoose => {
         sellerRegDate: Date,
         sellerEmail: String,
         sellerpickUpDetails: String,
-        sellerProfilePic: String
+        sellerProfilePic: String,
+        isLogistics: Boolean,
+        productWeight: Number
       },
       { timestamps: true }
     );

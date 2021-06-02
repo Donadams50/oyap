@@ -14,7 +14,7 @@ const path = require('path')
 app.use(express.static(path.join(__dirname, 'public')));
 
 const db = require("./app/mongoose");
-console.log(db.url)
+//console.log(db.url)
 db.mongoose
   .connect(db.url, { 
     useNewUrlParser: true,

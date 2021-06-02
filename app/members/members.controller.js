@@ -1,11 +1,12 @@
 
 const db = require("../mongoose");
 const Members = db.profiles;
+const Products = db.products;
 const Auths = db.auths;
 const passwordUtils =require('../helpers/passwordUtils');
 const jwtTokenUtils = require('../helpers/jwtTokenUtils.js');
 const sendemail = require('../helpers/emailhelper.js');
-
+const cron = require('node-cron');
 const { signToken } = jwtTokenUtils;
 const uuid = require('uuid')
 
@@ -77,10 +78,10 @@ exports.create = async(req,res)=>{
                                 res.status(400).send({message:" Email already exists"})
                                 }else{
                                  auths.password = await passwordUtils.hashPassword(password.toLowerCase());
-                                 const emailFrom = 'noreply@ioyap.com';
+                                 const emailFrom = process.env.user;
                                  const subject = 'Verificaton link';                      
-                                 const hostUrl = "oyap.netlify.app/verify/"+codeGenerated+""
-                                 const hostUrl2 = "https://oyap.netlify.app/verify/"+codeGenerated+"" 
+                                 const hostUrl = ""+process.env.hostUrl+"/verify/"+codeGenerated+""
+                                 const hostUrl2 = ""+process.env.hostUrl2+"/verify/"+codeGenerated+"" 
                                  const firstName = req.body.firstName
                                  const   text = 'Welcome to oyap, verify your account by clicking the link below'
                                  const emailTo = req.body.email.toLowerCase();
@@ -267,10 +268,10 @@ console.log(req.body)
                 console.log(saveCode)
                 if(isUserExist && isUserExist2){
                 const username = isUserExist.firstName;
-                const emailFrom = 'noreply@ioyap.com';
+                const emailFrom = process.env.user;
                 const subject = 'Reset password link';                      
-                const hostUrl = 'oyap.netlify.app/changepassword?code='+code+'' 
-                const hostUrl2 = 'https://oyap.netlify.app/changepassword?code='+code+''   
+                const hostUrl = ""+process.env.hostUrl+"/changepassword?code='+code+'" 
+                const hostUrl2 = ""+process.env.hostUrl2+"/changepassword?code='+code+'"   
                 const   text = "Your password reset link is shown below. Click on the reset button to change your password"
                 const emailTo = req.body.email.toLowerCase();
                 const link = `${hostUrl}`;
@@ -348,10 +349,10 @@ console.log(req.body)
                
                 
 
-                const emailFrom = 'noreply@ioyap.com';
+                const emailFrom = process.env.user;
                 const subject = 'Reset Password Succesful ';                      
-                const hostUrl = "oyap.netlify.app"
-                 const hostUrl2 = "https://oyap.netlify.app"    
+                const hostUrl = process.env.hostUrl
+                 const hostUrl2 = process.env.hostUrl2    
                 const   text = 'Your password has been changed succesfully'
                 const emailTo = getuser.email.toLowerCase()
                 const link = `${hostUrl}`;
@@ -702,7 +703,7 @@ exports.changePassword = async(req,res)=>{
     if (!req.body){
         res.status(400).send({message:"Content cannot be empty"});
     }
-console.log(req.body)
+//console.log(req.body)
   // let {myrefCode} = req.query;
     const { oldPassword, newPassword} = req.body;
   
@@ -902,3 +903,39 @@ function getCode(){
     }
 return code
 }
+
+
+// Cron Jobs runs Here
+var lowProductNotification = cron.schedule('* * * * *', async function() {
+                    const getAllSeller = await Members.find({role:"Seller"}).sort({ _id: -1 })
+                    console.log(getAllSeller.length)
+                try {
+                    await Promise.all( getAllSeller.map(async (singleSeller) => {
+                    const emailFrom = process.env.user
+                    const subject = 'Low Product Alert'
+                    const emailTo = singleSeller.email
+                    const hostUrl = process.env.hostUrl
+                    const hostUrl2 = process.env.hostUrl2
+                    const link = `${hostUrl}`
+                    const link2 = `${hostUrl2}`
+                    const firstName = singleSeller.firstName
+                     const sellerId = singleSeller._id
+                     const countProductSkin = await Products.countDocuments({sellerId:sellerId})
+                    const message = `This is to inform you that, your products on OYAP platform is getting low. You have just ${countProductSkin} product left. Login and Add more products. Thank you`      
+                    console.log(countProductSkin)
+                            if(countProductSkin < process.env.minimumProduct){
+                                console.log("sending mail")
+                             // processEmail(emailFrom, emailTo, subject, link, link2, message,  firstName)
+
+                            }else{
+                                console.log("Passed")
+                            }
+                }))
+             
+                } catch (err) {
+                console.log(err)
+               
+}
+ 
+ })
+

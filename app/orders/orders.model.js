@@ -13,7 +13,9 @@ module.exports = mongoose => {
         timeLine : Array,
         logisticId : String,
         isConfirmed: Boolean,
-        inTransit : Boolean
+        inTransit : Boolean,
+        cancellationReason: String,
+        isCancelled: Boolean
       },
       { timestamps: true }
     );
