@@ -11,10 +11,10 @@ const mongoose = require("mongoose");
 exports.create = async(req, res) => {
   console.log(req.body)
   // let {myrefCode} = req.query;
-  const {   productName, productType  , productCategory , productPrice, productQuantity, productDescription, productInStock, productImages , isLogistics, productWeight} = req.body;
+  const {   productName, productCategory , productSubcategory , productPrice, productQuantity, productDescription, productInStock, productImages , isLogistics, productWeight} = req.body;
   
-  if ( productName && productType && productCategory && productPrice && productQuantity && productDescription && productInStock &&productImages && productWeight && isLogistics ){
-      if ( productName==="" || productType==="" || productCategory==="" || productPrice==="" || productQuantity=== "" || productDescription ==="" || productInStock ==="" || productImages.length < 1 || productWeight === "" ){
+  if ( productName && productCategory && productSubcategory && productPrice && productQuantity && productDescription && productInStock &&productImages && productWeight && isLogistics ){
+      if ( productName==="" || productSubcategory==="" || productCategory==="" || productPrice==="" || productQuantity=== "" || productDescription ==="" || productInStock ==="" || productImages.length < 1 || productWeight === "" ){
           res.status(400).send({
               message:"Incorrect entry format"
           });
@@ -22,14 +22,14 @@ exports.create = async(req, res) => {
    
         
           const products = new Products({
-            productName: req.body.productName,
-            productType: req.body.productType,
-            productCategory: req.body.productCategory,
-            productPrice: req.body.productPrice,
-            productQuantity: req.body.productQuantity,
-            productDescription: req.body.productDescription,
+            productName: productName,
+            productSubcategory: productSubcategory,
+            productCategory: productCategory,
+            productPrice: productPrice,
+            productQuantity: productQuantity,
+            productDescription: productDescription,
             productInStock : true,
-            productImages : req.body.productImages,
+            productImages : productImages,
             sellerId: req.user.id,
             sellerphoneNumber: req.user.phoneNumber,
             sellerFirstName: req.user.firstName,
@@ -79,13 +79,13 @@ exports.findAllProductsForAUser = async (req, res) => {
         console.log(resultsPerPage)
         console.log(offset1)
         if(offset1 === 1){
-            const findAllProduct = await Products.find({sellerId:sellerId}).sort({ _id: "desc" })
+            const findAllProduct = await Products.find({sellerId:sellerId}).sort({ _id: "desc" }).populate('productcategory').populate('subproductcategory')
             .limit(resultsPerPage)
             console.log(findAllProduct)
             res.status(200).send(findAllProduct)
         }else{
             const page = offset1 -1;
-            const findAllProduct = await Products.find({sellerId:sellerId}).sort({ _id: "desc" })
+            const findAllProduct = await Products.find({sellerId:sellerId}).sort({ _id: "desc" }).populate('productcategory').populate('subproductcategory')
         .limit(resultsPerPage)
         .skip(resultsPerPage * page)
         console.log(findAllProduct)
@@ -104,7 +104,7 @@ exports.findProductById= async (req, res) => {
         let id = req.params.id;
         
             
-            const findProduct = await Products.findOne({_id:id})
+            const findProduct = await Products.findOne({_id:id}).populate('productcategory').populate('subproductcategory')
             res.status(200).send(findProduct)
             console.log(findProduct)
                           
@@ -116,6 +116,7 @@ exports.findProductById= async (req, res) => {
 
 // Update a product
 exports.updateProduct = async(req, res) => {
+
     const _id = req.params.id;
     if(req.body.productQuantity > 1){
         productInStock = true
@@ -125,8 +126,8 @@ exports.updateProduct = async(req, res) => {
            const products = new Products({
         _id : req.params.id,
         productName: req.body.productName,
-        productType: req.body.productType,
-        productCategory: req.body.productCategory,
+        productSubcategory: productSubcategory,
+        productCategory: productCategory,
         productPrice: req.body.productPrice,
         productQuantity: req.body.productQuantity,
         productDescription: req.body.productDescription,
@@ -312,13 +313,13 @@ exports.getAllProduct = async (req, res) => {
         console.log(resultsPerPage)
         console.log(offset1)
         if(offset1 === 1){
-            const findAllProduct = await Products.find().sort({ _id: "desc" })
+            const findAllProduct = await Products.find().sort({ _id: "desc" }).populate('productcategory').populate('subproductcategory')
             .limit(resultsPerPage)
             console.log(findAllProduct)
             res.status(200).send(findAllProduct)
         }else{
             const page = offset1 -1;
-            const findAllProduct = await Products.find().sort({ _id: "desc" })
+            const findAllProduct = await Products.find().sort({ _id: "desc" }).populate('productcategory').populate('subproductcategory')
         .limit(resultsPerPage)
         .skip(resultsPerPage * page)
         console.log(findAllProduct)

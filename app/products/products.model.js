@@ -1,9 +1,10 @@
 module.exports = mongoose => {
+  var Schema = mongoose.Schema;
     var schema = mongoose.Schema(
       {
         productName: String,
-        productType:String,
-        productCategory:String,
+        productSubcategory:{ type: Schema.Types.ObjectId, ref: 'subproductcategory' },
+        productCategory:{ type: Schema.Types.ObjectId, ref: 'productcategory' },
         productPrice:Number,
         productQuantity: Number,
         productDescription: String,
