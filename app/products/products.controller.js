@@ -303,6 +303,25 @@ exports.getProductSubCategoryByCategoryId = async (req, res) => {
  
  };
 
+ // find related product
+
+ 
+ // Find subcategory by category id 
+exports.findRelatedProduct = async (req, res) => {
+    try{
+        
+         let subcategoryId = req.params.subcategoryId
+         const findrelatedproduct = await Products.find({productSubcategory: subcategoryId})
+         res.status(200).send(findrelatedproduct)
+            
+        }catch(err){
+            console.log(err)
+            res.status(500).send({message:"Error while getting related product"})
+        }
+ 
+ };
+
+
 // Find all products 
 exports.getAllProduct = async (req, res) => {
     try{
