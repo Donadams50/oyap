@@ -2,8 +2,8 @@ module.exports = mongoose => {
     var schema = mongoose.Schema(
       {
      
-        productType:String,
-        productCategory:String
+        
+        categoryName:String
         
       },
       { timestamps: true }
@@ -18,7 +18,7 @@ module.exports = mongoose => {
       object.id = _id;
       return object;
     });
-    const Producttype = mongoose.model("producttype", schema);
-    return Producttype;
+    const Productcategory = mongoose.model("productcategory", schema);
+    return Productcategory;
   };
   

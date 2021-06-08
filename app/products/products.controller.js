@@ -1,7 +1,9 @@
 const db = require("../mongoose");
 const Products = db.products;
-const Producttypes = db.producttypes;
- const sendemail = require('../helpers/emailhelper.js');
+const Productcategory = db.productcategories;
+const Productsubcategory = db.productsubcategories;
+const sendemail = require('../helpers/emailhelper.js');
+const mongoose = require("mongoose");
  const dotenv=require('dotenv');
  dotenv.config();
  
@@ -184,53 +186,40 @@ exports.deleteProduct = async (req, res) => {
        }
 }
 
-//get product by TYPE
-exports.findProductByType = async (req, res) => {
-    try{
-        
-        let type = req.params.type;
-        
-            const findProductByTypes = await Producttypes.find({productType:type}).sort({ _id: "desc" })    
-            console.log(findProductByTypes)
-            res.status(200).send(findProductByTypes)
-              
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting product "})
-       }
-};
 
 
-exports.createProductType = async(req, res) => {
+
+// create product category
+exports.createProductCategory = async(req, res) => {
     console.log(req.body)
     // let {myrefCode} = req.query;
-    const {    productCategory , productType } = req.body;
+    const { categoryName } = req.body;
     
-    if ( productType && productCategory  ){
-        if (  productType==="" || productCategory==="" ){
+    if (categoryName){
+        if (categoryName==="" ){
             res.status(400).send({
                 message:"Incorrect entry format"
             });
         }else{ 
      
           
-            const producttypes = new Producttypes({
-              productType: req.body.productType,
-              productCategory: req.body.productCategory
+            const productcategory = new Productcategory({
+              
+              categoryName: categoryName
          
               });
     
          
             try{                  
-                const findProductByCategory = await Producttypes.findOne({productCategory:productCategory})
+                const findProductByCategory = await Productcategory.findOne({categoryName:categoryName})
           
               console.log(findProductByCategory)
               if(findProductByCategory){     
                   res.status(400).send({message:"This category already exist"})
               }else{
-                  const saveproducttype = await  producttypes.save()
-                  console.log(saveproducttype)
-                 res.status(201).send({message:"Product type created"})        
+                  const saveproductcategory = await  productcategory.save()
+              
+                 res.status(201).send({message:"Product category created"})        
               }
             }catch(err){
                 console.log(err)
@@ -244,8 +233,76 @@ exports.createProductType = async(req, res) => {
     }
     };
   
+// create product subcategory
+exports.createProductSubcategory = async(req, res) => {
+    
 
-      // Find all products 
+        const { categoryName,categoryId,subcategoryName } = req.body;
+      
+        if ( categoryName    && subcategoryName && categoryId ){
+              if ( categoryName==="" ||    subcategoryName===""   || categoryId===""  ){
+                res.status(400).send({
+                    message:"Incorrect entry format5"
+                });
+            }else{
+                
+                    
+                try{
+                    const sess = await mongoose.startSession()
+                    sess.startTransaction()
+                    const subcategory = new Productsubcategory({     
+                        categoryName: categoryName,
+                        categoryId: categoryId,
+                        subcategoryName: subcategoryName   
+                      });
+                    const saveSubCategory = await subcategory.save({session: sess})
+                        await sess.commitTransaction()
+                        sess.endSession();                  
+                         res.status(201).send({message:"Created succesfully"})    
+                }catch(err){
+                    console.log(err)
+                    res.status(500).send({message:"Error while creating Subcategory "})
+                }   
+              
+            }
+        }else{
+            res.status(400).send({
+                message:"Incorrect entry format6"
+            });
+        }
+                       
+    }
+
+
+    // Find all category
+exports.getAllProductCategory = async (req, res) => {
+    try{
+            const findAllCategories = await Productcategory.find().sort({"_id": 1})    
+            res.status(200).send(findAllCategories)
+        
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting all categories "})
+       }
+};
+
+// Find subcategory by category id 
+exports.getProductSubCategoryByCategoryId = async (req, res) => {
+    try{
+        
+             let categoryId = req.params.categoryId
+         const findsubcategoryByCategoryId = await Productsubcategory.find({categoryId: categoryId})
+        
+         res.status(200).send(findsubcategoryByCategoryId)
+            
+        }catch(err){
+            console.log(err)
+            res.status(500).send({message:"Error while getting sub category "})
+        }
+ 
+ };
+
+// Find all products 
 exports.getAllProduct = async (req, res) => {
     try{
         console.log(req.query)

@@ -12,6 +12,9 @@ module.exports = app => {
   app.get("/products",   product.getAllProduct)
    app.delete("/products/:id",  verifyToken, isSeller, product.deleteProduct);
    app.put("/products/:id",  verifyToken, isSeller,  product.updateProduct)
-   app.get("/category/product/:type",  verifyToken,   product.findProductByType)
-   app.post("/category/product",  verifyToken,   product.createProductType)
+   app.get("/category/product",  verifyToken,   product.getAllProductCategory)
+   app.get("/subcategory/product/:categoryId",  verifyToken,   product.getProductSubCategoryByCategoryId)
+   app.post("/category/product",  verifyToken,  isAdmin,  product.createProductCategory)
+   app.post("/subcategory/product",  verifyToken,  isAdmin,  product.createProductSubcategory)
+   
 }
