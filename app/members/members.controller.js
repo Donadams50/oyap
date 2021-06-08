@@ -906,36 +906,36 @@ return code
 
 
 // Cron Jobs runs Here
-var lowProductNotification = cron.schedule('* * * * *', async function() {
-                    const getAllSeller = await Members.find({role:"Seller"}).sort({ _id: -1 })
-                    console.log(getAllSeller.length)
-                try {
-                    await Promise.all( getAllSeller.map(async (singleSeller) => {
-                    const emailFrom = process.env.user
-                    const subject = 'Low Product Alert'
-                    const emailTo = singleSeller.email
-                    const hostUrl = process.env.hostUrl
-                    const hostUrl2 = process.env.hostUrl2
-                    const link = `${hostUrl}`
-                    const link2 = `${hostUrl2}`
-                    const firstName = singleSeller.firstName
-                     const sellerId = singleSeller._id
-                     const countProductSkin = await Products.countDocuments({sellerId:sellerId})
-                    const message = `This is to inform you that, your products on OYAP platform is getting low. You have just ${countProductSkin} product left. Login and Add more products. Thank you`      
-                    console.log(countProductSkin)
-                            if(countProductSkin < process.env.minimumProduct){
-                                console.log("sending mail")
-                             // processEmail(emailFrom, emailTo, subject, link, link2, message,  firstName)
+// var lowProductNotification = cron.schedule('* * * * *', async function() {
+//                     const getAllSeller = await Members.find({role:"Seller"}).sort({ _id: -1 })
+//                     console.log(getAllSeller.length)
+//                 try {
+//                     await Promise.all( getAllSeller.map(async (singleSeller) => {
+//                     const emailFrom = process.env.user
+//                     const subject = 'Low Product Alert'
+//                     const emailTo = singleSeller.email
+//                     const hostUrl = process.env.hostUrl
+//                     const hostUrl2 = process.env.hostUrl2
+//                     const link = `${hostUrl}`
+//                     const link2 = `${hostUrl2}`
+//                     const firstName = singleSeller.firstName
+//                      const sellerId = singleSeller._id
+//                      const countProductSkin = await Products.countDocuments({sellerId:sellerId})
+//                     const message = `This is to inform you that, your products on OYAP platform is getting low. You have just ${countProductSkin} product left. Login and Add more products. Thank you`      
+//                     console.log(countProductSkin)
+//                             if(countProductSkin < process.env.minimumProduct){
+//                                 console.log("sending mail")
+//                              // processEmail(emailFrom, emailTo, subject, link, link2, message,  firstName)
 
-                            }else{
-                                console.log("Passed")
-                            }
-                }))
+//                             }else{
+//                                 console.log("Passed")
+//                             }
+//                 }))
              
-                } catch (err) {
-                console.log(err)
+//                 } catch (err) {
+//                 console.log(err)
                
-}
+// }
  
- })
+//  })
 

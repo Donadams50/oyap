@@ -79,13 +79,13 @@ exports.findAllProductsForAUser = async (req, res) => {
         console.log(resultsPerPage)
         console.log(offset1)
         if(offset1 === 1){
-            const findAllProduct = await Products.find({sellerId:sellerId}).sort({ _id: "desc" }).populate('productcategory').populate('subproductcategory')
+            const findAllProduct = await Products.find({sellerId:sellerId}).sort({ _id: "desc" }).populate('productCategory').populate('productSubcategory')
             .limit(resultsPerPage)
             console.log(findAllProduct)
             res.status(200).send(findAllProduct)
         }else{
             const page = offset1 -1;
-            const findAllProduct = await Products.find({sellerId:sellerId}).sort({ _id: "desc" }).populate('productcategory').populate('subproductcategory')
+            const findAllProduct = await Products.find({sellerId:sellerId}).sort({ _id: "desc" }).populate('productCategory').populate('productSubcategory')
         .limit(resultsPerPage)
         .skip(resultsPerPage * page)
         console.log(findAllProduct)
@@ -104,7 +104,7 @@ exports.findProductById= async (req, res) => {
         let id = req.params.id;
         
             
-            const findProduct = await Products.findOne({_id:id}).populate('productcategory').populate('subproductcategory')
+            const findProduct = await Products.findOne({_id:id}).populate('productCategory').populate('productSubcategory')
             res.status(200).send(findProduct)
             console.log(findProduct)
                           
@@ -313,13 +313,13 @@ exports.getAllProduct = async (req, res) => {
         console.log(resultsPerPage)
         console.log(offset1)
         if(offset1 === 1){
-            const findAllProduct = await Products.find().sort({ _id: "desc" }).populate('productcategory').populate('subproductcategory')
+            const findAllProduct = await Products.find().sort({ _id: "desc" }).populate('productCategory').populate('productSubcategory')
             .limit(resultsPerPage)
             console.log(findAllProduct)
             res.status(200).send(findAllProduct)
         }else{
             const page = offset1 -1;
-            const findAllProduct = await Products.find().sort({ _id: "desc" }).populate('productcategory').populate('subproductcategory')
+            const findAllProduct = await Products.find().sort({ _id: "desc" }).populate('productCategory').populate('productSubcategory')
         .limit(resultsPerPage)
         .skip(resultsPerPage * page)
         console.log(findAllProduct)
