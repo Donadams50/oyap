@@ -126,8 +126,8 @@ exports.updateProduct = async(req, res) => {
            const products = new Products({
         _id : req.params.id,
         productName: req.body.productName,
-        productSubcategory: productSubcategory,
-        productCategory: productCategory,
+        productSubcategory: req.body.productSubcategory,
+        productCategory: req.body.productCategory,
         productPrice: req.body.productPrice,
         productQuantity: req.body.productQuantity,
         productDescription: req.body.productDescription,
@@ -138,8 +138,8 @@ exports.updateProduct = async(req, res) => {
         sellerfirstName: req.user.firstName,
         sellerlastName: req.user.lastName,
         sellerEmail: req.user.email,
-        isLogistics : isLogistics,
-        productWeight : productWeight
+        isLogistics : req.body.isLogistics,
+        productWeight : req.body.productWeight
    
       });
    
@@ -149,7 +149,7 @@ exports.updateProduct = async(req, res) => {
                        
                        if(findProductById.sellerId === req.user.id ){
                         const updateProduct = await Products.updateOne( {_id}, products)
-                           console.log(updateProduct)
+                          // console.log(updateProduct)
                         //   const getProduct = await Products.findOne({_id:_id})
                         if(updateProduct.nModified === 1){
                            res.status(200).send({message:"Product updated "})
@@ -157,7 +157,7 @@ exports.updateProduct = async(req, res) => {
                             res.status(400).send({message:"Product not updated "})
                         }
                      } else{
-                        res.status(400).send({message:"This product was not created  by this seller, You cant update it "})
+                        res.status(400).send({message:"This product was not created  by this seller, You cannot update it"})
                      }
                         
           }

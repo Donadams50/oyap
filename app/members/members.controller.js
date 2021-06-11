@@ -8,8 +8,6 @@ const jwtTokenUtils = require('../helpers/jwtTokenUtils.js');
 const sendemail = require('../helpers/emailhelper.js');
 const cron = require('node-cron');
 const { signToken } = jwtTokenUtils;
-const uuid = require('uuid')
-
 
 // Create and Save a new User
 
