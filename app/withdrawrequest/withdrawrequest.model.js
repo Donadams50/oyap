@@ -1,12 +1,15 @@
 module.exports = mongoose => {
+  var Schema = mongoose.Schema;
     var schema = mongoose.Schema(
       {
         status: String,
-        sellerId: String,
-        amount: String,
+        userDetails: { type: Schema.Types.ObjectId, ref: 'profile' },
+        amount: Number,
         accountName: String,
         accountNumber: String,
         bankName : String,
+        narration : String,
+        transactionId : { type: Schema.Types.ObjectId, ref: 'transaction' }
 
       },
       { timestamps: true }

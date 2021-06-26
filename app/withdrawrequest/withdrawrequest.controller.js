@@ -29,7 +29,7 @@ exports.withdrawFunds = async(req, res) => {
   
                 const withdrawrequest = new Withdrawrequest({      
                   status: "PENDING",
-                  sellerId: req.user.id,
+                  userDetails: req.user.id,
                   bankName: bankName,
                   accountName: accountName,
                   accountNumber: accountNumber,
@@ -38,7 +38,7 @@ exports.withdrawFunds = async(req, res) => {
                 });     
                 
                 const transactions = new Transactions({      
-                  status: "PENDING",
+                  status: "SUCCESSFUL",
                   sellerId: req.user.id,              
                   amount: amount, 
                   type : "Debit",
@@ -47,6 +47,7 @@ exports.withdrawFunds = async(req, res) => {
                   bankName: bankName,
                   accountName: accountName,
                   accountNumber: accountNumber,
+                  narration : "Fund withdrawer"
                   
               });
   
@@ -60,7 +61,10 @@ exports.withdrawFunds = async(req, res) => {
                               const _id = req.user.id
                               const saveTransaction = await  transactions.save({ session: sess })
                               const saveWithdreawerRequest = await withdrawrequest.save({ session: sess }) 
+                              const withdrawerRequestId = saveWithdreawerRequest._id
                               const updateUserWallet = await Members.findOneAndUpdate({ _id }, { walletBalance: finalBalance }, { session: sess });  
+                              const updateWithdrawerRequest = await Withdrawrequest.findOneAndUpdate({ withdrawerRequestId }, { transactionId: saveTransaction._id }, { session: sess });  
+
                               await sess.commitTransaction()
                               sess.endSession();
   
@@ -97,3 +101,192 @@ exports.withdrawFunds = async(req, res) => {
   
   
   };
+
+  
+  //find  order
+exports.getAllWithdrawer = async (req, res) => {
+    console.log("i enter")
+    try{
+        const resultsPerPage =  parseInt(req.query.limit);
+        const offset1 = parseInt(req.query.offset);
+        let status = req.query.status
+
+
+      if(status === "Pending"){
+          if(offset1 === 1){
+              const findWithdrawerRequest = await Withdrawrequest.find({  status : "PENDING"}).sort({ _id: "desc" }).populate('userDetails')
+              .limit(resultsPerPage)
+                  res.status(200).send(findWithdrawerRequest)
+          }else{
+              const page = offset1 -1;
+              const findWithdrawerRequest = await Withdrawrequest.find({ status : "PENDING"}).sort({ _id: "desc" }).populate('userDetails')
+              .limit(resultsPerPage)
+              .skip(resultsPerPage * page)
+          
+              res.status(200).send(findWithdrawerRequest)      
+           } 
+       }else if(status === "Completed"){
+          if(offset1 === 1){
+              const findWithdrawerRequest = await Withdrawrequest.find({  status : "COMPLETED"}).sort({ _id: "desc" }).populate('userDetails')
+              .limit(resultsPerPage)
+                  res.status(200).send(findWithdrawerRequest)
+          }else{
+              const page = offset1 -1;
+              const findWithdrawerRequest = await Withdrawrequest.find({ status : "COMPLETED"}).sort({ _id: "desc" }).populate('userDetails')
+              .limit(resultsPerPage)
+              .skip(resultsPerPage * page)
+          
+              res.status(200).send(findWithdrawerRequest)      
+           } 
+       }else if(status === "Cancelled"){
+        if(offset1 === 1){
+            const findWithdrawerRequest = await Withdrawrequest.find({  status : "CANCELLED"}).sort({ _id: "desc" }).populate('userDetails')
+            .limit(resultsPerPage)
+                res.status(200).send(findWithdrawerRequest)
+        }else{
+            const page = offset1 -1;
+            const findWithdrawerRequest = await Withdrawrequest.find({  status : "CANCELLED"}).sort({ _id: "desc" }).populate('userDetails')
+            .limit(resultsPerPage)
+            .skip(resultsPerPage * page)
+        
+            res.status(200).send(findWithdrawerRequest)      
+         } 
+     }
+     
+       
+         
+       
+         
+        
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting Withdrawer request "})
+       }
+};
+
+
+
+
+
+exports.completeRequest = async(req, res) => {
+       
+    try{
+        const sess = await mongoose.startSession()
+        sess.startTransaction()
+              
+              const _id = req.params.withdrawerrequestId;
+            getWithdrawerRequest = await Withdrawrequest.findOne({_id: _id})
+            console.log(getWithdrawerRequest)
+            getUserDetails = await Members.findOne({_id:getWithdrawerRequest.userDetails})
+            console.log(getUserDetails)
+            if(getWithdrawerRequest.status === "COMPLETED" || getWithdrawerRequest.status === "CANCELLED" ){
+                res.status(400).send({message:"This order withdrawer has been completed or cancelled"})
+
+             }else{     
+
+                const updateWithdrawerrequest= await Withdrawrequest.findOneAndUpdate({ _id }, { status: "COMPLETED" }, { session: sess });    
+
+                await sess.commitTransaction()
+                    sess.endSession(); 
+                const emailFrom = 'noreply@ioyap.com';; 
+                const subject = 'Funds Disbursed!!!';                      
+                const hostUrl = "oyap.netlify.app"
+                const hostUrl2 = "https://oyap.netlify.app" 
+                const username =  getUserDetails.firstName
+                const   text = "Your withdrawer request has been Approved and your funds has been sent" 
+                const emailTo = getUserDetails.email
+                const link = `${hostUrl}`;
+                const link2 = `${hostUrl2}`;
+                processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+
+                res.status(200).send({message:"Withdrawer approved  succesfully"})
+              
+
+    }
+    }catch(err){
+        console.log(err)
+        res.status(500).send({message:"Error while cancelling order "})
+    }
+
+};
+
+
+
+                
+exports.cancelRequest = async(req, res) => {
+       
+                    try{
+                        const sess = await mongoose.startSession()
+                        sess.startTransaction()
+                              
+                              const _id = req.params.withdrawerrequestId;
+                            getWithdrawerRequest = await Withdrawrequest.findOne({_id: _id})
+                             
+                            getUserDetails = await Members.findOne({_id:getWithdrawerRequest.userDetails})
+                             const userId = getUserDetails._id
+                            if(getWithdrawerRequest.status === "COMPLETED" || getWithdrawerRequest.status === "CANCELLED" ){
+                                res.status(400).send({message:"This order withdrawer has been completed or cancelled"})
+                
+                             }else{    
+                                const amount =  getWithdrawerRequest.amount
+                                const walletBalance =  parseFloat(getUserDetails.walletBalance)
+                                const finalBalance  =  parseFloat(getUserDetails.walletBalance) + parseFloat(amount) 
+                                const transAmount = parseFloat(amount)
+                
+                                const updateWithdrawerrequest= await Withdrawrequest.findOneAndUpdate({ _id }, { status: "CANCELLED" }, { session: sess });    
+                              
+                                const transactions = new Transactions({      
+                                    status: "SUCCESSFUL",
+                                    sellerId: getUserDetails._id,              
+                                    amount: amount, 
+                                    type : "Credit",
+                                    initialBalance : walletBalance,
+                                    finalBalance: finalBalance,
+                                    bankName: getWithdrawerRequest.bankName,
+                                    accountName: getWithdrawerRequest.accountName,
+                                    accountNumber: getWithdrawerRequest.accountNumber,
+                                    narration : "Transaction Reversed"
+                                    
+                                });
+                                const saveTransaction = await  transactions.save({ session: sess })      
+                                const updateUserWallet = await Members.findOneAndUpdate({ userId }, { walletBalance: finalBalance }, { session: sess });  
+                         
+                                await sess.commitTransaction()
+                                    sess.endSession(); 
+                                const emailFrom = 'noreply@ioyap.com';; 
+                                const subject = 'Fund Reversed';                      
+                                const hostUrl = "oyap.netlify.app"
+                                const hostUrl2 = "https://oyap.netlify.app" 
+                                const username =  getUserDetails.firstName
+                                const   text = "Your withdrawer request has been rejected and you funds has been reversed" 
+                                const emailTo = getUserDetails.email
+                                const link = `${hostUrl}`;
+                                const link2 = `${hostUrl2}`;
+                                processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+                
+                                res.status(200).send({message:"Withdrawer approved  succesfully"})
+                              
+                
+                    }
+                    }catch(err){
+                        console.log(err)
+                        res.status(500).send({message:"Error while cancelling order "})
+                    }
+                
+                };
+
+
+                
+async function processEmail(emailFrom, emailTo, subject, link, link2, text, fName){
+    try{
+        
+        // await delay();
+       const sendmail =  await sendemail.emailUtility(emailFrom, emailTo, subject, link, link2, text, fName);
+     //  console.log(sendmail)
+        return sendmail
+    }catch(err){
+        console.log(err)
+        return err
+    }
+  
+  }

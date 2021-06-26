@@ -473,7 +473,7 @@ exports.makeOrderOnTransit = async(req, res) => {
 
 
 
- //find new order
+ //find all order
  exports.getAllOrders = async (req, res) => {
     try{
         const resultsPerPage =  parseInt(req.query.limit);

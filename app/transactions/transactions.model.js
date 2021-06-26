@@ -4,16 +4,18 @@ module.exports = mongoose => {
         status: String,
         buyerId: String,
         sellerId: String,
+        logisticsId: String,
         orderId: String,
-        amount: String,
+        amount: Number,
         type : String,
-        initialBalance : String,
-        finalBalance: String,
+        initialBalance : Number,
+        finalBalance: Number,
         productDetails : Object,
         accountName: String,
         accountNumber: String,
         bankName : String,
-        charges: String
+        charges: String,
+        narration : String
 
       },
       { timestamps: true }

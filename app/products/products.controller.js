@@ -4,10 +4,10 @@ const Productcategory = db.productcategories;
 const Productsubcategory = db.productsubcategories;
 const sendemail = require('../helpers/emailhelper.js');
 const mongoose = require("mongoose");
- const dotenv=require('dotenv');
- dotenv.config();
+const dotenv=require('dotenv');
+dotenv.config();
  
-// Add new product to database
+//Add new product to database
 exports.create = async(req, res) => {
   console.log(req.body)
   // let {myrefCode} = req.query;
@@ -67,7 +67,7 @@ exports.create = async(req, res) => {
   }
   };
 
-  // Find all products 
+//Find all products 
 exports.findAllProductsForAUser = async (req, res) => {
     try{
         console.log(req.query)
@@ -97,8 +97,7 @@ exports.findAllProductsForAUser = async (req, res) => {
        }
 };
 
-
-//get product by id
+//Get product by id
 exports.findProductById= async (req, res) => {
     try{
         let id = req.params.id;
@@ -114,7 +113,7 @@ exports.findProductById= async (req, res) => {
        }
 };
 
-// Update a product
+//Update a product
 exports.updateProduct = async(req, res) => {
 
     const _id = req.params.id;
@@ -171,9 +170,7 @@ exports.updateProduct = async(req, res) => {
                    
 };
 
-
-
-// delete product
+//Delete product
 exports.deleteProduct = async (req, res) => {
     try{
         const id = req.params.id;
@@ -187,10 +184,7 @@ exports.deleteProduct = async (req, res) => {
        }
 }
 
-
-
-
-// create product category
+//Create product category
 exports.createProductCategory = async(req, res) => {
     console.log(req.body)
     // let {myrefCode} = req.query;
@@ -234,7 +228,7 @@ exports.createProductCategory = async(req, res) => {
     }
     };
   
-// create product subcategory
+//Create product subcategory
 exports.createProductSubcategory = async(req, res) => {
     
 
@@ -274,8 +268,7 @@ exports.createProductSubcategory = async(req, res) => {
                        
     }
 
-
-    // Find all category
+//Find all category
 exports.getAllProductCategory = async (req, res) => {
     try{
             const findAllCategories = await Productcategory.find().sort({"_id": 1})    
@@ -287,7 +280,7 @@ exports.getAllProductCategory = async (req, res) => {
        }
 };
 
-// Find subcategory by category id 
+//Find subcategory by category id 
 exports.getProductSubCategoryByCategoryId = async (req, res) => {
     try{
         
@@ -303,10 +296,7 @@ exports.getProductSubCategoryByCategoryId = async (req, res) => {
  
  };
 
- // find related product
-
- 
- // Find subcategory by category id 
+//Find related product 
 exports.findRelatedProduct = async (req, res) => {
     try{
         
@@ -321,8 +311,7 @@ exports.findRelatedProduct = async (req, res) => {
  
  };
 
-
-// Find all products 
+//Find all products 
 exports.getAllProduct = async (req, res) => {
     try{
         console.log(req.query)
@@ -349,7 +338,8 @@ exports.getAllProduct = async (req, res) => {
            res.status(500).send({message:"Error while getting product "})
        }
 };
-  // Count all products 
+
+//Count all products 
 exports.countProduct = async (req, res) => {
     try{
          let category1 = "Hair"
