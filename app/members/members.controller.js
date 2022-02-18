@@ -85,7 +85,7 @@ exports.create = async(req,res)=>{
                                  const hostUrl = ""+process.env.hostUrl+"/verify-code"
                                  const hostUrl2 = ""+process.env.hostUrl2+"/verify-code" 
                                  const firstName = req.body.firstName
-                                 const   text = `Welcome to oyap, verify your account by using this code : <strong>${codeGenerated}</strong> `
+                                 const   text = `Welcome to oyap, verify your account by using this code : ${codeGenerated}`
                                  const emailTo = req.body.email.toLowerCase();
                                  const link = `${hostUrl}`;
                                  const link2 = `${hostUrl2}`;
@@ -273,8 +273,8 @@ console.log(req.body)
                 const username = isUserExist.firstName;
                 const emailFrom = process.env.user;
                 const subject = 'Reset password link';                      
-                const hostUrl = ""+process.env.hostUrl+"/changepassword?code='+code+'" 
-                const hostUrl2 = ""+process.env.hostUrl2+"/changepassword?code='+code+'"   
+                const hostUrl = ""+process.env.hostUrl+"/changepassword?code="+code+"" 
+                const hostUrl2 = ""+process.env.hostUrl2+"/changepassword?code="+code+""   
                 const   text = "Your password reset link is shown below. Click on the reset button to change your password"
                 const emailTo = req.body.email.toLowerCase();
                 const link = `${hostUrl}`;
