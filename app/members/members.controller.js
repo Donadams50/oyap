@@ -26,7 +26,7 @@ exports.create = async(req,res)=>{
                 });
            }else{  
                
-            if (role === "Admin" || req.user.role === "Buyer" ) {
+            if (role === "Admin" || role === "Buyer" ) {
               
                  members = new Members({
                     firstName: req.body.firstName,
@@ -45,7 +45,7 @@ exports.create = async(req,res)=>{
                     profilePic : ""
                     
                     });
-               }else if (role === "Seller" || req.user.role === "Logistics" ){
+               }else if (role === "Seller" || role === "Logistics" ){
                  members = new Members({
                     firstName: req.body.firstName,
                     role: req.body.role,
