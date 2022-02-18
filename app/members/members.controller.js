@@ -7,6 +7,10 @@ const passwordUtils =require('../helpers/passwordUtils');
 const jwtTokenUtils = require('../helpers/jwtTokenUtils.js');
 const sendemail = require('../helpers/emailhelper.js');
 const cron = require('node-cron');
+
+const { v4: uuidv4 } = require('uuid');
+
+
 const { signToken } = jwtTokenUtils;
 
 // Create and Save a new User
@@ -159,7 +163,8 @@ exports.verifyUser = async (req, res) => {
                 message:"Incorrect entry format"
             });
         }
-         };
+};
+
 // Login user
 exports.signIn = async(req, res) => {
   if (!req.body){
@@ -258,7 +263,7 @@ console.log(req.body)
               const isUserExist = await Members.findOne({email: email} )
               const isUserExist2 = await Auths.findOne({email: email} )
                 if(isUserExist && isUserExist2){
-                const code = uuid.v1()
+                const code =  uuidv4();
                             
                 //const email = req.body.email.toLowerCase();
                 const _id = isUserExist._id;
