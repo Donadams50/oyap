@@ -78,10 +78,10 @@ exports.create = async(req,res)=>{
                                  auths.password = await passwordUtils.hashPassword(password.toLowerCase());
                                  const emailFrom = process.env.user;
                                  const subject = 'Verificaton link';                      
-                                 const hostUrl = ""+process.env.hostUrl+"/verify/"+codeGenerated+""
-                                 const hostUrl2 = ""+process.env.hostUrl2+"/verify/"+codeGenerated+"" 
+                                 const hostUrl = ""+process.env.hostUrl+"/verify-code"
+                                 const hostUrl2 = ""+process.env.hostUrl2+"/verify-code" 
                                  const firstName = req.body.firstName
-                                 const   text = 'Welcome to oyap, verify your account by clicking the link below'
+                                 const   text = `Welcome to oyap, verify your account by using this code : <strong>${codeGenerated}</strong> `
                                  const emailTo = req.body.email.toLowerCase();
                                  const link = `${hostUrl}`;
                                  const link2 = `${hostUrl2}`;
