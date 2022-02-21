@@ -20,7 +20,9 @@ exports.create = async(req, res) => {
           });
       }else{ 
    
-        
+           const rateInPrice = parseFloat(productPrice) * process.env.displayPriceRate
+           const displayPriceCalc = parseFloat(rateInPrice) + parseFloat(productPrice) 
+
           const products = new Products({
             productName: productName,
             productSubcategory: productSubcategory,
@@ -38,9 +40,10 @@ exports.create = async(req, res) => {
             sellerRegDate : req.user.createdAt,
             sellerProfilePic: req.user.profilePic,
             productWeight : productWeight,
-            isLogistics : isLogistics
-
-       
+            isLogistics : isLogistics,
+            numberOfPurchase: 0,
+            displayPrice: displayPriceCalc,
+            feedback: []
             });
   
        
@@ -138,7 +141,11 @@ exports.updateProduct = async(req, res) => {
         sellerlastName: req.user.lastName,
         sellerEmail: req.user.email,
         isLogistics : req.body.isLogistics,
-        productWeight : req.body.productWeight
+        productWeight : req.body.productWeight,
+        numberOfPurchase: req.body.numberOfPurchase,
+        feedback: req.body.feedback,
+        displayPrice: req.body.displayPrice
+
    
       });
    
@@ -359,3 +366,30 @@ exports.countProduct = async (req, res) => {
 
 
 
+
+// buyer post feedback
+exports.postFeedBack = async(req, res) => {
+    try{
+        const _id = req.params.productId;
+        const getProduct = await Products.findOne({_id: _id})
+        const  newPurchaseCount = parseInt(getProduct.numberOfPurchase) + 1
+        const newFeedBack = {
+             "message": req.body.feedback,
+             "rating": req.body.rating,
+             "buyerName": `${req.user.firstName }" "${req.user.lastName}`,
+             "buyerEmail": req.user.email,
+             "buyerId": req.user.id,
+             "date": new Date()
+        }
+        const updateProduct = await Products.updateOne({_id: _id}, { numberOfPurchase:newPurchaseCount, $addToSet: { feedback: [newFeedBack] }  } );
+        if(updateProduct){
+             res.status(200).send({message:"Feedback posted succesfully"})
+        }else{
+            res.status(400).send({message:"Feedback not saved"})
+        }
+    }catch(err){
+        console.log(err)
+        res.status(500).send({message:"Error while posting feedback "})
+    }
+
+};

@@ -110,10 +110,16 @@ exports.confirmOrderSeller = async(req, res) => {
                  const hostUrl2 = "https://oyap.netlify.app" 
                  const username =  getBuyerDetails.firstName
                  const   text = "This order has been confirmed by the farmer" 
-               const emailTo = getBuyerDetails.email
-               const link = `${hostUrl}`;
+                 const emailTo = getBuyerDetails.email
+                 const adminEmail = process.env.user
+                 const adminUserName = "Admin"
+                 const textAdmin = " A farmer just confirmed an order, please login to start the logistics process"
+                 const subjectAdmin = "New order alert"
+                 const link = `${hostUrl}`;
                  const link2 = `${hostUrl2}`;
                  processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+                 processEmail(emailFrom, adminEmail, subjectAdmin, link, link2, textAdmin, adminUserName);
+
 
                  res.status(200).send({message:"Order confirmed succesfully"})
 

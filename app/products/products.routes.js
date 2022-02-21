@@ -17,5 +17,7 @@ module.exports = app => {
    app.post("/category/product",  verifyToken,  isAdmin,  product.createProductCategory)
    app.post("/subcategory/product",  verifyToken,  isAdmin,  product.createProductSubcategory)
    app.get("/relatedproduct/:subcategoryId",     product.findRelatedProduct)
+   app.post("/product/feedback/:productId",  verifyToken,  isBuyer,  product.postFeedBack)
+
 
 }
