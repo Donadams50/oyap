@@ -801,7 +801,8 @@ async function PersistOneByOne(cartDetails, paymentResponse, billingDetails, shi
         isConfirmed : false,
         inTransit : false,
         cancellationReason: "",
-        isCancelled: false
+        isCancelled: false,
+        isFeedbackGiven: false
         
       });
             

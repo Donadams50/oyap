@@ -1,6 +1,7 @@
 const db = require("../mongoose");
 const Products = db.products;
 const Productcategory = db.productcategories;
+const Orders = db.orders;
 const Productsubcategory = db.productsubcategories;
 const sendemail = require('../helpers/emailhelper.js');
 const mongoose = require("mongoose");
@@ -371,6 +372,7 @@ exports.countProduct = async (req, res) => {
 exports.postFeedBack = async(req, res) => {
     try{
         const _id = req.params.productId;
+        const orderId = req.body.orderId
         const getProduct = await Products.findOne({_id: _id})
         const  newPurchaseCount = parseInt(getProduct.numberOfPurchase) + 1
         const newFeedBack = {
@@ -384,6 +386,9 @@ exports.postFeedBack = async(req, res) => {
         }
         const updateProduct = await Products.updateOne({_id: _id}, { numberOfPurchase:newPurchaseCount, $addToSet: { feedback: [newFeedBack] }  } );
         if(updateProduct){
+            const updateOrder= await Orders.updateOne({_id: orderId}, { isFeedbackGiven:true});
+
+
              res.status(200).send({message:"Feedback posted succesfully"})
         }else{
             res.status(400).send({message:"Feedback not saved"})

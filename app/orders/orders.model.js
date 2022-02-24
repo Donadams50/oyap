@@ -15,7 +15,8 @@ module.exports = mongoose => {
         isConfirmed: Boolean,
         inTransit : Boolean,
         cancellationReason: String,
-        isCancelled: Boolean
+        isCancelled: Boolean,
+        isFeedbackGiven: Boolean
       },
       { timestamps: true }
     );
