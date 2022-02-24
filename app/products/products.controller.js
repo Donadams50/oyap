@@ -376,6 +376,7 @@ exports.postFeedBack = async(req, res) => {
         const newFeedBack = {
              "message": req.body.feedback,
              "rating": req.body.rating,
+             "rateMeaning" :req.body.rateMeaning,
              "buyerName": `${req.user.firstName }" "${req.user.lastName}`,
              "buyerEmail": req.user.email,
              "buyerId": req.user.id,
