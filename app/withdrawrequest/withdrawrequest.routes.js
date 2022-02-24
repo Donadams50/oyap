@@ -9,6 +9,6 @@ module.exports = app => {
    app.get("/withdrawer",  verifyToken, isAdminOrSubadmin,  withdrawerrequest.getAllWithdrawer)
    app.post("/cancelrequest/:withdrawerrequestId",  verifyToken, isAdminOrSubadmin,  withdrawerrequest.cancelRequest)
    app.post("/completerequest/:withdrawerrequestId",  verifyToken, isAdminOrSubadmin,  withdrawerrequest.completeRequest)
-   app.get("/bank/code", verifyToken,  isAdminOrSubadmin,  withdrawerrequest.getBankCode)
+   app.get("/bank/code", verifyToken,  isSeller,  withdrawerrequest.getBankCode)
     
 }
