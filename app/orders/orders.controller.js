@@ -87,55 +87,50 @@ exports.findNewOrder = async (req, res) => {
 
 // confirm order
 exports.confirmOrderSeller = async(req, res) => {
-       
-            try{
-                          
-          
-                      const _id = req.params.orderId;
-                    getOrder = await Orders.findOne({_id: _id})
-                    console.log(getOrder)
-                    getBuyerDetails = await Members.findOne({_id:getOrder.buyerId})
-                    if(getOrder.sellerId === req.user.id){
-                      const timeline = {
-                            "status" : " Order Confirmed",
-                            "dateOccured":  new Date()
-                        }
-                const updateOrder = await Orders.updateOne({_id: _id}, { $addToSet: { timeLine: [timeline] } } );
+        try{         
+            const _id = req.params.orderId;
+            getOrder = await Orders.findOne({_id: _id})
+            console.log(getOrder)
+            getBuyerDetails = await Members.findOne({_id:getOrder.buyerId})
+            if(getOrder.sellerId === req.user.id){
+                    const timeline = {
+                                "status" : " Order Confirmed",
+                                "dateOccured":  new Date()
+                    }
+                    const updateOrder = await Orders.updateOne({_id: _id}, { $addToSet: { timeLine: [timeline] } } );
 
-                        if(updateOrder){
-                const postIsComplete = await Orders.findOneAndUpdate({ _id }, { isConfirmed: true });         
-                const emailFrom = 'noreply@ioyap.com';;
-                 const subject = 'Order Confirmed';                      
-                 const hostUrl = "oyap.netlify.app"
-                 const hostUrl2 = "https://oyap.netlify.app" 
-                 const username =  getBuyerDetails.firstName
-                 const   text = "This order has been confirmed by the farmer" 
-                 const emailTo = getBuyerDetails.email
-                 const adminEmail = process.env.user
-                 const adminUserName = "Admin"
-                 const textAdmin = " A farmer just confirmed an order, please login to start the logistics process"
-                 const subjectAdmin = "New order alert"
-                 const link = `${hostUrl}`;
-                 const link2 = `${hostUrl2}`;
-                 processEmail(emailFrom, emailTo, subject, link, link2, text, username);
-                 processEmail(emailFrom, adminEmail, subjectAdmin, link, link2, textAdmin, adminUserName);
+                    if(updateOrder){
+                                const postIsComplete = await Orders.findOneAndUpdate({ _id }, { isConfirmed: true });         
+                                const emailFrom = 'noreply@ioyap.com';;
+                                const subject = 'Order Confirmed';                      
+                                const hostUrl = "oyap.netlify.app"
+                                const hostUrl2 = "https://oyap.netlify.app" 
+                                const username =  getBuyerDetails.firstName
+                                const   text = "This order has been confirmed by the farmer" 
+                                const emailTo = getBuyerDetails.email
+                                const adminEmail = process.env.user
+                                const adminUserName = "Admin"
+                                const textAdmin = " A farmer just confirmed an order, please login to start the logistics process"
+                                const subjectAdmin = "New order alert"
+                                const link = `${hostUrl}`;
+                                const link2 = `${hostUrl2}`;
+                                processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+                                processEmail(emailFrom, adminEmail, subjectAdmin, link, link2, textAdmin, adminUserName);
 
+                                res.status(200).send({message:"Order confirmed succesfully"})
 
-                 res.status(200).send({message:"Order confirmed succesfully"})
-
-                }else{
-                    res.status(400).send({message:"Order not found "})
-                }
+                    }else{
+                        res.status(400).send({message:"Order not found "})
+                    }
     
             }else{
                 res.status(400).send({message:"Seller Id Invalid "})
             }
-            }catch(err){
-                console.log(err)
-                res.status(500).send({message:"Error while confirming order "})
-            }
-     
-    };
+        }catch(err){
+            console.log(err)
+            res.status(500).send({message:"Error while confirming order "})
+        }
+};
 
 //cancel order
 
@@ -220,7 +215,7 @@ exports.findOrderByStatusBuyer = async (req, res) => {
                console.log(err)
                res.status(500).send({message:"Error while getting orders "})
            }
-    };
+};
 
 // get orders by a particular seller
  exports.findOrderByStatusSeller = async (req, res) => {
@@ -266,7 +261,7 @@ exports.findOrderByStatusBuyer = async (req, res) => {
                console.log(err)
                res.status(500).send({message:"Error while getting orders "})
            }
-    };
+ };
 
 // find all confirmed id  
  exports.getAllConfirmedOrder = async (req, res) => {
@@ -282,10 +277,10 @@ exports.findOrderByStatusBuyer = async (req, res) => {
                console.log(err)
                res.status(500).send({message:"Error while getting orders "})
            }
-    };
+ };
     
 // Count dashboard count 
-  exports.sellerDashboardCount = async (req, res) => {
+exports.sellerDashboardCount = async (req, res) => {
     try{
       
         const countConfirmedOrder = await Orders.countDocuments({ sellerId:req.user.id, isConfirmed : true, status : "Pending"})
@@ -302,7 +297,6 @@ exports.findOrderByStatusBuyer = async (req, res) => {
            res.status(500).send({message:"Error while counting orders "})
        }
 };
-
 
 // confirm order delivered logistics
 exports.confirmOrderLogistics = async(req, res) => {

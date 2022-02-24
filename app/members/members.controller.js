@@ -30,7 +30,7 @@ exports.create = async(req,res)=>{
                 });
            }else{  
                
-            if (role === "Admin" || role === "Buyer" ) {
+            if (role === "Admin" || role === "Buyer" ||  role === "SubAdmin" ) {
               
                  members = new Members({
                     firstName: req.body.firstName,

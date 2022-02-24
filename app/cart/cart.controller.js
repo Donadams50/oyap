@@ -18,7 +18,7 @@ const logger = winston.createLogger({
  const sendemail = require('../helpers/emailhelper.js');
 
  // Add new symptom  to category
- exports.create = async(req, res) => {
+exports.create = async(req, res) => {
     console.log(req.body)
    
     const {    cartQty, subTotal, productName,productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
@@ -57,8 +57,7 @@ const logger = winston.createLogger({
                 sellerEmail: req.body.sellerEmail,
                 sellerpickUpDetails: req.body.sellerpickUpDetails,
                 sellerProfilePic: req.body.sellerProfilePic
-            
-          
+
               }); 
     
          
@@ -104,7 +103,8 @@ const logger = winston.createLogger({
             message:"Incorrect entry format jj"
         });
     }
-    };
+ };
+
     //get cart by userid
 exports.findCartByUserId = async (req, res) => {
     try{
@@ -145,25 +145,25 @@ exports.findCartByUserId = async (req, res) => {
        }
 };
     //get cart by userid
-    exports.countCart = async (req, res) => {
-        try{
-            let id = req.params.id;
+exports.countCart = async (req, res) => {
+    try{
+        let id = req.params.id;
+        
             
-                
-             
-                const countCart = await Carts.countDocuments({userId:id})
-                console.log(countCart)
+            
+            const countCart = await Carts.countDocuments({userId:id})
+            console.log(countCart)
 
-                res.status(200).send({"cartcount": countCart})
-               
-                              
-           }catch(err){
-               console.log(err)
-               res.status(500).send({message:"Error while getting cart count "})
-           }
-    };
+            res.status(200).send({"cartcount": countCart})
+            
+                            
+        }catch(err){
+            console.log(err)
+            res.status(500).send({message:"Error while getting cart count "})
+        }
+};
 
-    exports.deleteCart = async (req, res) => {
+exports.deleteCart = async (req, res) => {
       try{
           const id = req.params.id;
           const deletecart = await Carts.findByIdAndRemove(id)
@@ -174,4 +174,4 @@ exports.findCartByUserId = async (req, res) => {
              console.log(err)
              res.status(500).send({message:"Error while deleting quecartstions "})
          }
-  }
+};
