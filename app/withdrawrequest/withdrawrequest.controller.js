@@ -4,6 +4,9 @@ const Transactions = db.transactions;
 const Withdrawrequest = db.withdrawrequests
 const Members = db.profiles;
 const mongoose = require("mongoose");
+
+ const axios = require('axios')
+ 
 const sendemail = require('../helpers/emailhelper.js');
 const dotenv=require('dotenv');
       dotenv.config()
@@ -273,7 +276,27 @@ exports.cancelRequest = async(req, res) => {
                         res.status(500).send({message:"Error while cancelling order "})
                     }
                 
-                };
+};
+
+
+
+exports.getBankCode = async (req, res) => {
+    try{
+        console.log("getBankCode")
+        const headers = {
+            'Authorization': process.env.flutterToken,
+            'Content-Type': 'application/json'      
+            }
+        
+        const  getBankCode = await axios.get('https://api.flutterwave.com/v3/banks/NG', {headers: headers}) 
+            //console.log(getBankCode)
+            res.status(200).send({bankCode:getBankCode.data})
+      
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting bank code "})
+       }
+};
 
 
                 
