@@ -393,12 +393,12 @@ const makePayment = async (account_bank , account_number  , amount, narration , 
             narration: narration,
             currency: currency,
             debit_currency: debit_currency,
-            reference : `reference${_PMCK}`,
+            reference : `${reference}_PMCK`,
             callback_url : `https://oyap.herokuapp.com/webhook/payment/status/${reference}`
           
           }
       
-      const  sendmoney = await axios.post('https://api.flutterwave.com/v3/transfers', params, {headers: headers}) 
+          const  sendmoney = await axios.post('https://api.flutterwave.com/v3/transfers', params, {headers: headers}) 
           console.log(sendmoney.data)
         
   
