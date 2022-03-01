@@ -15,11 +15,11 @@ const uuid = require('uuid')
 // withdraw  funds
 exports.withdrawFunds = async(req, res) => {
 
-    const {    amount  , accountName, accountNumber, bankName , narration, currency, debit_currency} = req.body;
+    const {    amount  , accountName, accountNumber, bankName , bankCode, narration, currency, debit_currency} = req.body;
    
          
-    if (  amount  && accountName && accountNumber&& bankName && currency && debit_currency ){
-      if ( amount === ""  || accountName ==="" || accountNumber==="" || bankName==="" || currency==="" || debit_currency===""){
+    if (  amount  && accountName && accountNumber&& bankName  && bankCode && currency && debit_currency ){
+      if ( amount === ""  || accountName ==="" || accountNumber==="" || bankName==="" || bankCode==="" || currency==="" || debit_currency===""){
           res.status(400).send({
               message:"Incorrect entry format"
           });
@@ -38,6 +38,7 @@ exports.withdrawFunds = async(req, res) => {
                   bankName: bankName,
                   accountName: accountName,
                   accountNumber: accountNumber,
+                  bankCode: bankCode,
                   amount:amount,
                   currency: currency,
                   debitCurrency:debit_currency
@@ -182,6 +183,7 @@ exports.completeRequest = async(req, res) => {
                 const currency_cu = getWithdrawerRequest.currency
                 const debit_currency = getWithdrawerRequest.debitCurrency
                 const transactionId = getWithdrawerRequest.transaction
+                const bankcode = getWithdrawerRequest.bankCode
                 console.log(getUserDetails)
              if(getWithdrawerRequest.status === "COMPLETED" || getWithdrawerRequest.status === "CANCELLED" ){
                 res.status(400).send({message:"This order withdrawer has been completed or cancelled"})
@@ -189,7 +191,7 @@ exports.completeRequest = async(req, res) => {
              }else{     
 
                     const reference = uuid.v4()   
-                    const  makepayment = await makePayment(account_bank , account_number  , amount, narration , currency_cu, debit_currency, reference)
+                    const  makepayment = await makePayment(bankcode , account_number  , amount, narration , currency_cu, debit_currency, reference)
                     if (makepayment.status === 200  && makepayment.data.status === "success") {
                         if (makepayment.data.data.status === "SUCCESSFUL" && makepayment.data.data.complete_message === "Transaction was successful"  ) {
                             const updateWithdrawerrequest= await Withdrawrequest.updateOne({ _id : _id}, { status: "COMPLETED", flutterPaymentId: makepayment.data.data.id,reference: reference }, { session: sess }); 
