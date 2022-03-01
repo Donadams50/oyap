@@ -4,6 +4,7 @@ const Members = db.profiles;
 const Withdrawrequest = db.withdrawrequests
 const Carts = db.carts;
 const Products = db.products;
+const Shippingfee = db.shippingfees
 const Transactions = db.transactions;
 const mongoose = require("mongoose");
   const sendemail = require('../helpers/emailhelper.js');
@@ -47,7 +48,7 @@ exports.createOrder = async(req, res) => {
           message:"Incorrect entry format"
       });
   }
-  };
+};
 
   //find new order
 exports.findNewOrder = async (req, res) => {
@@ -597,7 +598,7 @@ exports.makeOrderOnTransit = async(req, res) => {
 
 
    // get orders of a particular seller by admin
-   exports.getUserOrdersByAdmin = async (req, res) => {
+exports.getUserOrdersByAdmin = async (req, res) => {
     try{
         const resultsPerPage =  parseInt(req.query.limit);
         const offset1 = parseInt(req.query.offset);
@@ -757,7 +758,54 @@ exports.makeOrderOnTransit = async(req, res) => {
 };
 
 
+// Add new product to database
+exports.postShippingFee = async(req, res) => {
+ 
+    const {   location, maxWeight  , minWeight, fee } = req.body;
+    
+    if ( location&& maxWeight  && minWeight&& fee  ){
+        if ( minWeight==="" || fee==="" || maxWeight==="" || location===""  ){
+            res.status(400).send({
+                message:"Incorrect entry format"
+            });
+        }else{
+            const shipfee = new Shippingfee({
+                location : req.body.location,
+                maxWeight: req.body.maxWeight,
+                minWeight: req.body.minWeight,
+                fee: req.body.fee
+              });
+         
+            try{
+                const saveshippingfee = await  shipfee.save()
+                res.status(201).send({message:"shipping fee posted Succesfully"})
+            }catch(err){
+                console.log(err)
+                res.status(500).send({message:"Error while creating shipping fee "})
+            }
+        }
+    }else{
+        res.status(400).send({
+            message:"Incorrect entry format"
+        });
+    }
+};
 
+exports.getShippingFee = async (req, res) => {
+    try{
+        
+        const findShippingFees= await Shippingfee.find().sort({ _id: "desc" })
+        if(findShippingFees){
+            res.status(200).send(findShippingFees)
+          }else{
+            res.status(400).send({message:"No shipping to fetch "})
+          }
+         
+       }catch(err){
+           console.log(err)
+           res.status(500).send({message:"Error while getting shipping fee "})
+       }
+};
 
 
 

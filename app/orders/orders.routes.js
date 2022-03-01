@@ -22,4 +22,6 @@ module.exports = app => {
    app.get("/admin/user/orders/:userId",  verifyToken,  isAdminOrSubadmin, order.getUserOrdersByAdmin)
    app.put("/cancel/orders/:orderId",  verifyToken,    isAdminOrSubadmin,  order.cancelOrder)
    app.get("/allorders",verifyToken, isAdminOrSubadmin, order.getAllOrders)
+   app.post("/shipping/fee",  verifyToken, isAdminOrSubadmin , order.postShippingFee)
+   app.get("/shipping/fee",  verifyToken, order.getShippingFee)
 }
