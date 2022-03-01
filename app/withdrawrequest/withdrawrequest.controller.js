@@ -40,7 +40,7 @@ exports.withdrawFunds = async(req, res) => {
                   accountNumber: accountNumber,
                   amount:amount,
                   currency: currency,
-                  debit_currency:debit_currency
+                  debitCurrency:debit_currency
                 });     
                 
                 const transactions = new Transactions({      
@@ -393,7 +393,7 @@ const makePayment = async (account_bank , account_number  , amount, narration , 
             narration: narration,
             currency: currency,
             debit_currency: debit_currency,
-            reference : reference,
+            reference : `reference${_PMCK}`,
             callback_url : `https://oyap.herokuapp.com/webhook/payment/status/${reference}`
           
           }
