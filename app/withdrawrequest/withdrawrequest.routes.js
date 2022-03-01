@@ -10,5 +10,6 @@ module.exports = app => {
    app.post("/cancelrequest/:withdrawerrequestId",  verifyToken, isAdminOrSubadmin,  withdrawerrequest.cancelRequest)
    app.post("/completerequest/:withdrawerrequestId",  verifyToken, isAdminOrSubadmin,  withdrawerrequest.completeRequest)
    app.get("/bank/code", verifyToken,  isSeller,  withdrawerrequest.getBankCode)
+   app.post("/webhook/payment/status/:refence",  withdrawerrequest.updateFlutterResponse)
     
 }

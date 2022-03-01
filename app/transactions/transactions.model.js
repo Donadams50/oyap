@@ -15,7 +15,9 @@ module.exports = mongoose => {
         accountNumber: String,
         bankName : String,
         charges: String,
-        narration : String
+        narration : String,
+        flutterPaymentId:String,
+        reference: String
 
       },
       { timestamps: true }

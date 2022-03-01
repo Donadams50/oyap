@@ -1,3 +1,5 @@
+const { stringify } = require("uuid");
+
 module.exports = mongoose => {
   var Schema = mongoose.Schema;
     var schema = mongoose.Schema(
@@ -9,7 +11,12 @@ module.exports = mongoose => {
         accountNumber: String,
         bankName : String,
         narration : String,
-        transactionId : { type: Schema.Types.ObjectId, ref: 'transaction' }
+        transactionId : { type: Schema.Types.ObjectId, ref: 'transaction' },
+        reference: String,
+        currency: String,
+        debitCurrency:String,
+        flutterPaymentId: String,
+        reference: String
 
       },
       { timestamps: true }

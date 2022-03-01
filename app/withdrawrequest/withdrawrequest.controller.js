@@ -10,14 +10,16 @@ const mongoose = require("mongoose");
 const sendemail = require('../helpers/emailhelper.js');
 const dotenv=require('dotenv');
       dotenv.config()
-
+const uuid = require('uuid')
+      // Create new trade
 // withdraw  funds
 exports.withdrawFunds = async(req, res) => {
 
-    const {    amount  , accountName, accountNumber, bankName } = req.body;
+    const {    amount  , accountName, accountNumber, bankName , narration, currency, debit_currency} = req.body;
+   
          
-    if (  amount  && accountName && accountNumber&& bankName  ){
-      if ( amount === ""  || accountName ==="" || accountNumber==="" || bankName===""  ){
+    if (  amount  && accountName && accountNumber&& bankName && currency && debit_currency ){
+      if ( amount === ""  || accountName ==="" || accountNumber==="" || bankName==="" || currency==="" || debit_currency===""){
           res.status(400).send({
               message:"Incorrect entry format"
           });
@@ -36,8 +38,9 @@ exports.withdrawFunds = async(req, res) => {
                   bankName: bankName,
                   accountName: accountName,
                   accountNumber: accountNumber,
-                  amount:amount
-        
+                  amount:amount,
+                  currency: currency,
+                  debit_currency:debit_currency
                 });     
                 
                 const transactions = new Transactions({      
@@ -108,63 +111,56 @@ exports.withdrawFunds = async(req, res) => {
   
   //find  order
 exports.getAllWithdrawer = async (req, res) => {
-    console.log("i enter")
     try{
         const resultsPerPage =  parseInt(req.query.limit);
         const offset1 = parseInt(req.query.offset);
         let status = req.query.status
 
-
-      if(status === "Pending"){
-          if(offset1 === 1){
-              const findWithdrawerRequest = await Withdrawrequest.find({  status : "PENDING"}).sort({ _id: "desc" }).populate('userDetails')
-              .limit(resultsPerPage)
-                  res.status(200).send(findWithdrawerRequest)
-          }else{
-              const page = offset1 -1;
-              const findWithdrawerRequest = await Withdrawrequest.find({ status : "PENDING"}).sort({ _id: "desc" }).populate('userDetails')
-              .limit(resultsPerPage)
-              .skip(resultsPerPage * page)
-          
-              res.status(200).send(findWithdrawerRequest)      
-           } 
-       }else if(status === "Completed"){
-          if(offset1 === 1){
-              const findWithdrawerRequest = await Withdrawrequest.find({  status : "COMPLETED"}).sort({ _id: "desc" }).populate('userDetails')
-              .limit(resultsPerPage)
-                  res.status(200).send(findWithdrawerRequest)
-          }else{
-              const page = offset1 -1;
-              const findWithdrawerRequest = await Withdrawrequest.find({ status : "COMPLETED"}).sort({ _id: "desc" }).populate('userDetails')
-              .limit(resultsPerPage)
-              .skip(resultsPerPage * page)
-          
-              res.status(200).send(findWithdrawerRequest)      
-           } 
-       }else if(status === "Cancelled"){
-        if(offset1 === 1){
-            const findWithdrawerRequest = await Withdrawrequest.find({  status : "CANCELLED"}).sort({ _id: "desc" }).populate('userDetails')
-            .limit(resultsPerPage)
-                res.status(200).send(findWithdrawerRequest)
-        }else{
-            const page = offset1 -1;
-            const findWithdrawerRequest = await Withdrawrequest.find({  status : "CANCELLED"}).sort({ _id: "desc" }).populate('userDetails')
-            .limit(resultsPerPage)
-            .skip(resultsPerPage * page)
+            if(status === "Pending"){
+            if(offset1 === 1){
+                const findWithdrawerRequest = await Withdrawrequest.find({  status : "PENDING"}).sort({ _id: "desc" }).populate('userDetails')
+                .limit(resultsPerPage)
+                    res.status(200).send(findWithdrawerRequest)
+            }else{
+                const page = offset1 -1;
+                const findWithdrawerRequest = await Withdrawrequest.find({ status : "PENDING"}).sort({ _id: "desc" }).populate('userDetails')
+                .limit(resultsPerPage)
+                .skip(resultsPerPage * page)
+            
+                res.status(200).send(findWithdrawerRequest)      
+            } 
+            }else if(status === "Completed"){
+            if(offset1 === 1){
+                const findWithdrawerRequest = await Withdrawrequest.find({  status : "COMPLETED"}).sort({ _id: "desc" }).populate('userDetails')
+                .limit(resultsPerPage)
+                    res.status(200).send(findWithdrawerRequest)
+            }else{
+                const page = offset1 -1;
+                const findWithdrawerRequest = await Withdrawrequest.find({ status : "COMPLETED"}).sort({ _id: "desc" }).populate('userDetails')
+                .limit(resultsPerPage)
+                .skip(resultsPerPage * page)
+            
+                res.status(200).send(findWithdrawerRequest)      
+            } 
+            }else if(status === "Cancelled"){
+                if(offset1 === 1){
+                    const findWithdrawerRequest = await Withdrawrequest.find({  status : "CANCELLED"}).sort({ _id: "desc" }).populate('userDetails')
+                    .limit(resultsPerPage)
+                        res.status(200).send(findWithdrawerRequest)
+                }else{
+                    const page = offset1 -1;
+                    const findWithdrawerRequest = await Withdrawrequest.find({  status : "CANCELLED"}).sort({ _id: "desc" }).populate('userDetails')
+                    .limit(resultsPerPage)
+                    .skip(resultsPerPage * page)
+                
+                    res.status(200).send(findWithdrawerRequest)      
+                } 
+            } 
         
-            res.status(200).send(findWithdrawerRequest)      
-         } 
-     }
-     
-       
-         
-       
-         
-        
-       }catch(err){
-           console.log(err)
-           res.status(500).send({message:"Error while getting Withdrawer request "})
-       }
+    }catch(err){
+        console.log(err)
+        res.status(500).send({message:"Error while getting Withdrawer request "})
+    }
 };
 
 
@@ -172,40 +168,73 @@ exports.getAllWithdrawer = async (req, res) => {
 
 
 exports.completeRequest = async(req, res) => {
-       
     try{
         const sess = await mongoose.startSession()
         sess.startTransaction()
-              
-              const _id = req.params.withdrawerrequestId;
-            getWithdrawerRequest = await Withdrawrequest.findOne({_id: _id})
-            console.log(getWithdrawerRequest)
-            getUserDetails = await Members.findOne({_id:getWithdrawerRequest.userDetails})
-            console.log(getUserDetails)
-            if(getWithdrawerRequest.status === "COMPLETED" || getWithdrawerRequest.status === "CANCELLED" ){
+                const _id = req.params.withdrawerrequestId;
+                getWithdrawerRequest = await Withdrawrequest.findOne({_id: _id})
+                console.log(getWithdrawerRequest)
+                getUserDetails = await Members.findOne({_id:getWithdrawerRequest.userDetails})
+                const account_number = getWithdrawerRequest.accountNumber
+                const account_bank = getWithdrawerRequest.bankName
+                const amount = getWithdrawerRequest.amount
+                const narration = getWithdrawerRequest.narration || ""
+                const currency_cu = getWithdrawerRequest.currency
+                const debit_currency = getWithdrawerRequest.debitCurrency
+                const transactionId = getWithdrawerRequest.transaction
+                console.log(getUserDetails)
+             if(getWithdrawerRequest.status === "COMPLETED" || getWithdrawerRequest.status === "CANCELLED" ){
                 res.status(400).send({message:"This order withdrawer has been completed or cancelled"})
 
              }else{     
 
-                const updateWithdrawerrequest= await Withdrawrequest.findOneAndUpdate({ _id }, { status: "COMPLETED" }, { session: sess });    
+                    const reference = uuid.v4()   
+                    const  makepayment = await makePayment(account_bank , account_number  , amount, narration , currency_cu, debit_currency, reference)
+                    if (makepayment.status === 200  && makepayment.data.status === "success") {
+                        if (makepayment.data.data.status === "SUCCESSFUL" && makepayment.data.data.complete_message === "Transaction was successful"  ) {
+                            const updateWithdrawerrequest= await Withdrawrequest.updateOne({ _id : _id}, { status: "COMPLETED", flutterPaymentId: makepayment.data.data.id,reference: reference }, { session: sess }); 
+                            const updateTransaction = await Transactions.updateOne({ _id : transactionId  }, {  flutterPaymentId: makepayment.data.data.id,reference: reference},  { session: sess });  
+                        
+                            getExchangerDetails = await Members.findOne({_id:getTrade.userId} )
+                            const emailFrom = 'noreply@ioyap.com';; 
+                            const subject = 'Funds Disbursed!!!';                      
+                            const hostUrl = "oyap.netlify.app"
+                            const hostUrl2 = "https://oyap.netlify.app" 
+                            const username =  getUserDetails.firstName
+                            const   text = "Your withdrawer request has been Approved and your funds has been sent" 
+                            const emailTo = getUserDetails.email
+                            const link = `${hostUrl}`;
+                            const link2 = `${hostUrl2}`;
+                            processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+                            res.status(200).send({message:"Succesfull submitted payment" })
 
-                await sess.commitTransaction()
-                    sess.endSession(); 
-                const emailFrom = 'noreply@ioyap.com';; 
-                const subject = 'Funds Disbursed!!!';                      
-                const hostUrl = "oyap.netlify.app"
-                const hostUrl2 = "https://oyap.netlify.app" 
-                const username =  getUserDetails.firstName
-                const   text = "Your withdrawer request has been Approved and your funds has been sent" 
-                const emailTo = getUserDetails.email
-                const link = `${hostUrl}`;
-                const link2 = `${hostUrl2}`;
-                processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+                        }else{
+                                     const updateWithdrawerrequest= await Withdrawrequest.updateOne({ _id : _id}, {  flutterPaymentId: makepayment.data.data.id,reference: reference }, { session: sess }); 
+                                      const updateTransaction = await Transactions.updateOne({ _id : transactionId  }, {  flutterPaymentId: makepayment.data.data.id,reference: reference},  { session: sess });  
 
-                res.status(200).send({message:"Withdrawer approved  succesfully"})
-              
+                                    getExchangerDetails = await Members.findOne({_id:getTrade.userId} )
+                                    const emailFrom = 'noreply@ioyap.com';; 
+                                    const subject = 'Funds Disbursed!!!';                      
+                                    const hostUrl = "oyap.netlify.app"
+                                    const hostUrl2 = "https://oyap.netlify.app" 
+                                    const username =  getUserDetails.firstName
+                                    const   text = "Your withdrawer request has been Approved and your funds has been sent" 
+                                    const emailTo = getUserDetails.email
+                                    const link = `${hostUrl}`;
+                                    const link2 = `${hostUrl2}`;
+                                    processEmail(emailFrom, emailTo, subject, link, link2, text, username);
+                                    res.status(200).send({message:"Succesfull submitted payment" })        
+                                                
+            
+                        }
 
-    }
+                    }else{
+                        res.status(500).send({message:"Failed please try again. Make sure your flutter wallet is fully funded"})
+                    } 
+
+             }
+        await sess.commitTransaction()
+        sess.endSession(); 
     }catch(err){
         console.log(err)
         res.status(500).send({message:"Error while cancelling order "})
@@ -213,7 +242,55 @@ exports.completeRequest = async(req, res) => {
 
 };
 
+exports.updateFlutterResponse = async(req, res) => {
+    const {  id , status  , reference, complete_message} = req.body.data;
+      // console.log(req.body.data)
+      // console.log(reference)
+      try{
+          const sess = await mongoose.startSession()
+          sess.startTransaction()
+          getWithdraw = await Withdrawrequest.findOne({reference: reference})
+          console.log(getWithdraw)
+          const _id = getWithdraw._id;
+          if(getWithdraw.status === "PENDING"  ){
+              if (status === "SUCCESSFUL" && complete_message === "Transaction was successful"  ) {
+                   
+                    getExchangerDetails = await Members.findOne({_id:getWithdraw.userDetails})
+                    const updateWithdrawerrequest= await Withdrawrequest.updateOne({ _id : _id}, { status: "COMPLETED" }, { session: sess }); 
+                
+                    getExchangerDetails = await Members.findOne({_id:getWithdraw.userDetails} )
+                    const emailFrom = 'noreply@ioyap.com';; 
+                    const subject = 'Funds Disbursed!!!';                      
+                    const hostUrl = "oyap.netlify.app"
+                    const hostUrl2 = "https://oyap.netlify.app" 
+                    const username =  getUserDetails.firstName
+                    const   text = "Your withdrawer request has been Approved and your funds has been sent" 
+                    const emailTo = getUserDetails.email
+                    const link = `${hostUrl}`;
+                    const link2 = `${hostUrl2}`;
+                    processEmail(emailFrom, emailTo, subject, link, link2, text, username);
 
+                    res.status(200).send({message:"Success"})
+  
+  
+              }else{
+                     // const updatePaymentStatus = await Trades.findOneAndUpdate({ _id }, { paymentStatus: "Failed" });  
+                    // const updateReference = await Trades.findOneAndUpdate({ _id }, { reference: reference },  { session: sess }); 
+                    // const updateFlutterId = await Trades.findOneAndUpdate({ _id }, { flutterPaymentId: id },  { session: sess });  
+                    res.status(200).send({message:"Success"})
+  
+              }
+          }else{
+                console.log("This withdrawer request has been completed or Invalid")
+                res.status(200).send({message:"Success"})
+          }  
+          await sess.commitTransaction()
+          sess.endSession();
+      }catch(err){
+          console.log(err)
+          res.status(500).send({message:"Error while completing withdrawer request "})
+      }
+  };
 
                 
 exports.cancelRequest = async(req, res) => {
@@ -297,6 +374,40 @@ exports.getBankCode = async (req, res) => {
            res.status(500).send({message:"Error while getting bank code "})
        }
 };
+
+
+
+const makePayment = async (account_bank , account_number  , amount, narration , currency, debit_currency, reference) => {
+    try {
+     // const referenceNumber =
+      console.log("make payment")
+      const headers = {
+          'Authorization': process.env.flutterToken,
+          'Content-Type': 'application/json'      
+          }
+          const params = {
+
+            account_bank: account_bank,
+            account_number: account_number,
+            amount: amount,
+            narration: narration,
+            currency: currency,
+            debit_currency: debit_currency,
+            reference : reference,
+            callback_url : `https://oyap.herokuapp.com/webhook/payment/status/${reference}`
+          
+          }
+      
+      const  sendmoney = await axios.post('https://api.flutterwave.com/v3/transfers', params, {headers: headers}) 
+          console.log(sendmoney.data)
+        
+  
+      return sendmoney
+    } catch (err) { 
+      console.log(err)
+      return err
+    }
+  }
 
 
                 
