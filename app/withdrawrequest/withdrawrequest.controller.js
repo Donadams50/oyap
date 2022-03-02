@@ -409,7 +409,7 @@ const makePayment = async (account_bank , account_number  , amount, narration , 
       console.log(err)
       return err
     }
-  }
+}
 
 
                 
@@ -425,4 +425,4 @@ async function processEmail(emailFrom, emailTo, subject, link, link2, text, fNam
         return err
     }
   
-  }
+}

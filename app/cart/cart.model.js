@@ -11,6 +11,7 @@ module.exports = mongoose => {
         productType:String,
         productCategory:String,
         productPrice:Number,
+        displayPrice: Number,
         productQuantity: Number,
         productDescription: String,
         productInStock:Boolean,

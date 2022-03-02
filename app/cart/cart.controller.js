@@ -21,7 +21,7 @@ const logger = winston.createLogger({
 exports.create = async(req, res) => {
     console.log(req.body)
    
-    const {    cartQty, subTotal, productName,productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
+    const {    cartQty, subTotal, productName, displayPrice, productType, productCategory,productPrice,productQuantity, productDescription,productInStock,productImages,sellerId,sellerphoneNumber,sellerFirstName,sellerLastName,sellerRegDate,sellerEmail,sellerpickUpDetails,sellerProfilePic  } = req.body;
  
     if (  cartQty && subTotal && productName ){
         if (  cartQty==="" || subTotal===""){
@@ -56,8 +56,8 @@ exports.create = async(req, res) => {
                 sellerRegDate: req.body.sellerRegDate,
                 sellerEmail: req.body.sellerEmail,
                 sellerpickUpDetails: req.body.sellerpickUpDetails,
-                sellerProfilePic: req.body.sellerProfilePic
-
+                sellerProfilePic: req.body.sellerProfilePic,
+                displayPrice: req.body.displayPrice
               }); 
     
          
