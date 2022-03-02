@@ -231,7 +231,7 @@ exports.completeRequest = async(req, res) => {
                         }
 
                     }else{
-                        res.status(500).send({message:"Failed please try again. Make sure your flutter wallet is fully funded"})
+                        res.status(400).send({message:"Failed please try again. Make sure your flutter wallet is fully funded"})
                     } 
 
              }
